@@ -1,11 +1,11 @@
 const CACHE_NAME = 'xondhan-billing-cache-v1';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/icon.svg',
-  '/favicon.ico',
-  '/icon.ico'
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './icon.svg',
+  './favicon.ico',
+  './icon.ico'
 ];
 
 self.addEventListener('install', (event) => {
@@ -39,7 +39,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           return caches.match(event.request).then((cachedResponse) => {
-            return cachedResponse || caches.match('/index.html');
+            return cachedResponse || caches.match('./index.html');
           });
         })
     );

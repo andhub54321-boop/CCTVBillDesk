@@ -2,26 +2,26 @@
   "name": "CCTV BillDesk",
   "short_name": "CCTV BillDesk",
   "description": "Offline-capable Invoice Management Dashboard and CCTV Price Configurator",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#070d18",
   "theme_color": "#153e75",
   "orientation": "any",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "./icon.svg",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.ico",
+      "src": "./favicon.ico",
       "sizes": "32x32 48x48 64x64",
       "type": "image/x-icon",
       "purpose": "any"
     },
     {
-      "src": "/icon.ico",
+      "src": "./icon.ico",
       "sizes": "32x32 48x48 64x64 128x128 256x256",
       "type": "image/x-icon",
       "purpose": "any maskable"
