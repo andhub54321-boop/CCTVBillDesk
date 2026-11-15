@@ -58,7 +58,7 @@ export const InvoiceDashboard: React.FC = () => {
   const [editingRateId, setEditingRateId] = useState<number | null>(null);
   const [tempRate, setTempRate] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [canInstall, setCanInstall] = useState(false);
+  const [, setCanInstall] = useState(false);
 
   // Material Dialog System State
   const [dialogState, setDialogState] = useState<{

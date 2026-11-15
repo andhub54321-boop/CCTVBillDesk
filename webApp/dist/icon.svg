@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07162c"/>
+      <stop offset="50%" stop-color="#153e75"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="lensGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
+
+  <!-- Shield Outer Glow -->
+  <path d="M256 64 L384 112 V240 C384 328 328 408 256 448 C184 408 128 328 128 240 V112 Z" fill="none" stroke="url(#accentGrad)" stroke-width="12" opacity="0.8" filter="url(#glow)"/>
+
+  <!-- CCTV Security Camera Graphic -->
+  <g transform="translate(256, 240) scale(1.15)">
+    <!-- Base Mount -->
+    <path d="M-90 40 L-110 90 H-70 L-50 40 Z" fill="#94a3b8"/>
+    <rect x="-120" y="85" width="60" height="20" rx="6" fill="#64748b"/>
+
+    <!-- Camera Body -->
+    <path d="M-80 -40 L40 -60 C60 -63 80 -45 80 -25 L80 25 C80 45 60 63 40 60 L-80 40 C-95 37 -105 22 -105 5 L-105 -20 C-105 -35 -95 -37 -80 -40 Z" fill="#ffffff" filter="url(#glow)"/>
+    <path d="M-75 -32 L35 -50 C50 -52 65 -38 65 -22 L65 18 C65 34 50 48 35 45 L-75 32 Z" fill="#f8fafc"/>
+
+    <!-- Sunshield Top Cap -->
+    <path d="M-90 -45 L50 -68 C70 -71 85 -55 85 -35 L-85 -10 Z" fill="url(#accentGrad)"/>
+
+    <!-- Camera Lens Front Ring -->
+    <ellipse cx="65" cy="0" rx="18" ry="36" fill="#0f172a"/>
+    <ellipse cx="65" cy="0" rx="12" ry="24" fill="url(#lensGrad)"/>
+    <circle cx="68" cy="-4" r="5" fill="#ffffff" opacity="0.9"/>
+
+    <!-- IR LED Dots -->
+    <circle cx="65" cy="-28" r="4" fill="#ef4444"/>
+    <circle cx="65" cy="28" r="4" fill="#ef4444"/>
+  </g>
+</svg>

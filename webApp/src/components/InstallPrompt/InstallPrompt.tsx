@@ -64,7 +64,7 @@ export const InstallPrompt: React.FC<{
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue-500/30 flex items-center justify-center text-blue-300 font-bold border border-blue-400/40">
-            <span class="material-icons text-xl">get_app</span>
+            <span className="material-icons text-xl">get_app</span>
           </div>
           <div>
             <h3 className="text-sm font-bold leading-tight">Install Xondhan Billing App</h3>
