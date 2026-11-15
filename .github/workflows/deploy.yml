@@ -35,8 +35,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Make gradlew Executable
-        run: chmod +x gradlew
+      - name: Fix Line Endings and Permissions for gradlew
+        run: |
+          sed -i 's/\r$//' gradlew
+          chmod +x gradlew
 
       - name: Build KMP Shared Logic
         run: ./gradlew :sharedLogic:jsBrowserDevelopmentLibraryDistribution --no-daemon
