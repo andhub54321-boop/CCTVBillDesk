@@ -12,21 +12,40 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
   const [serial, setSerial] = useState('');
   const [hsn, setHsn] = useState('852580');
   const [unit, setUnit] = useState('NOS');
+  const [baseRate, setBaseRate] = useState<number | ''>('');
   const [rate, setRate] = useState<number | ''>('');
   const [qty, setQty] = useState<number>(1);
 
   if (!isOpen) return null;
 
+  const handleBaseRateChange = (val: string) => {
+    if (val === '') {
+      setBaseRate('');
+      return;
+    }
+    const num = parseFloat(val);
+    if (!isNaN(num)) {
+      setBaseRate(num);
+      if (rate === '' || rate === 0) {
+        setRate(Math.round(num * 1.10));
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+
+    const finalRate = typeof rate === 'number' ? rate : (typeof baseRate === 'number' ? Math.round(baseRate * 1.10) : 0);
+    const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / 1.10);
 
     onAdd({
       name: name.trim(),
       serial: serial.trim(),
       hsn: hsn.trim(),
       unit,
-      rate: typeof rate === 'number' ? rate : 0,
+      rate: finalRate,
+      baseRate: finalBaseRate,
       qty: qty > 0 ? qty : 1
     });
 
@@ -34,6 +53,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     setSerial('');
     setHsn('852580');
     setUnit('NOS');
+    setBaseRate('');
     setRate('');
     setQty(1);
     onClose();
@@ -95,9 +115,21 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Rate (₹)</label>
+              <label className="block font-semibold text-slate-700 mb-1">Base Rate (₹)</label>
+              <input
+                type="number"
+                step="any"
+                min="0"
+                placeholder="1272"
+                value={baseRate}
+                onChange={(e) => handleBaseRateChange(e.target.value)}
+                className="w-full border border-slate-300 rounded-xl px-2.5 py-2 outline-none focus:ring-2 focus:ring-brand-500 font-semibold bg-slate-50"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Rate (+10%)</label>
               <input
                 type="number"
                 required
@@ -106,7 +138,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 placeholder="1400"
                 value={rate}
                 onChange={(e) => setRate(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                className="w-full border border-slate-300 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500 font-semibold"
+                className="w-full border border-slate-300 rounded-xl px-2.5 py-2 outline-none focus:ring-2 focus:ring-brand-500 font-semibold"
               />
             </div>
             <div>
@@ -117,7 +149,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 min="1"
                 value={qty}
                 onChange={(e) => setQty(parseInt(e.target.value) || 1)}
-                className="w-full border border-slate-300 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500 font-semibold"
+                className="w-full border border-slate-300 rounded-xl px-2.5 py-2 outline-none focus:ring-2 focus:ring-brand-500 font-semibold"
               />
             </div>
           </div>

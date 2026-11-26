@@ -13,6 +13,7 @@ export interface InvoiceItem {
   qty: number;
   unit: string;
   rate: number;
+  baseRate?: number;
 }
 
 export interface InvoiceTotals {

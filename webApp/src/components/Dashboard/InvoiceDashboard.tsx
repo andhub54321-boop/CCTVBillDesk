@@ -18,20 +18,20 @@ import { ToastContainer, ToastMessage } from '../Toast/ToastContainer';
 import { InstallPrompt } from '../InstallPrompt/InstallPrompt';
 
 const DEFAULT_SEED_ITEMS: InvoiceItem[] = [
-  { id: 1, name: "DVR 8 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 2, unit: "NOS", rate: 4500 },
-  { id: 2, name: "DVR 4 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 1, unit: "NOS", rate: 2450 },
-  { id: 3, name: "CAMERA 2.4 BULLET COLOUR(ILLUMAX)", serial: "CAUAT80DM2DWH0CQ, ZTS2OGV764JZWTU3, 713BIXK7SG4TGQ2, 22JF0GZL5JVGG7H", hsn: "852580", qty: 4, unit: "PCS", rate: 1400 },
-  { id: 4, name: "CAMERA 2.4 DOME COLOUR(ILLUMAX)", serial: "", hsn: "85258900", qty: 1, unit: "PCS", rate: 1400 },
-  { id: 5, name: "POWER SUPPLY 10 AMPS PD08", serial: "B5LLPQHSUGU81OL", hsn: "850440", qty: 1, unit: "PCS", rate: 700 },
-  { id: 6, name: "HDD 500GB DAICHI", serial: "DGZE00C03268", hsn: "847170", qty: 1, unit: "NOS", rate: 2500 },
-  { id: 7, name: "MONITOR", serial: "", hsn: "85285200", qty: 1, unit: "NOS", rate: 2570 },
-  { id: 8, name: "CABLE 3+1 CC CPPLUS (90MTR)", serial: "", hsn: "854449", qty: 1, unit: "ROLL", rate: 1450 },
-  { id: 9, name: "RACK 2U CP PLUS", serial: "", hsn: "84733099", qty: 1, unit: "NOS", rate: 650 },
-  { id: 10, name: "PVC BOX 4*4", serial: "", hsn: "39261011", qty: 4, unit: "NOS", rate: 55 },
-  { id: 11, name: "BNC JACK", serial: "", hsn: "85366990", qty: 8, unit: "NOS", rate: 25 },
-  { id: 12, name: "DC JACK", serial: "", hsn: "85366990", qty: 4, unit: "PCS", rate: 15 },
-  { id: 13, name: "DVM WALL MOUNT", serial: "", hsn: "73262090", qty: 1, unit: "NOS", rate: 250 },
-  { id: 14, name: "U CLIP(3917)A", serial: "", hsn: "3917", qty: 2, unit: "PKT", rate: 100 }
+  { id: 1, name: "DVR 8 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 2, unit: "NOS", rate: 4500, baseRate: 4091 },
+  { id: 2, name: "DVR 4 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 1, unit: "NOS", rate: 2450, baseRate: 2227 },
+  { id: 3, name: "CAMERA 2.4 BULLET COLOUR(ILLUMAX)", serial: "CAUAT80DM2DWH0CQ, ZTS2OGV764JZWTU3, 713BIXK7SG4TGQ2, 22JF0GZL5JVGG7H", hsn: "852580", qty: 4, unit: "PCS", rate: 1400, baseRate: 1273 },
+  { id: 4, name: "CAMERA 2.4 DOME COLOUR(ILLUMAX)", serial: "", hsn: "85258900", qty: 1, unit: "PCS", rate: 1400, baseRate: 1273 },
+  { id: 5, name: "POWER SUPPLY 10 AMPS PD08", serial: "B5LLPQHSUGU81OL", hsn: "850440", qty: 1, unit: "PCS", rate: 700, baseRate: 636 },
+  { id: 6, name: "HDD 500GB DAICHI", serial: "DGZE00C03268", hsn: "847170", qty: 1, unit: "NOS", rate: 2500, baseRate: 2273 },
+  { id: 7, name: "MONITOR", serial: "", hsn: "85285200", qty: 1, unit: "NOS", rate: 2570, baseRate: 2336 },
+  { id: 8, name: "CABLE 3+1 CC CPPLUS (90MTR)", serial: "", hsn: "854449", qty: 1, unit: "ROLL", rate: 1450, baseRate: 1318 },
+  { id: 9, name: "RACK 2U CP PLUS", serial: "", hsn: "84733099", qty: 1, unit: "NOS", rate: 650, baseRate: 591 },
+  { id: 10, name: "PVC BOX 4*4", serial: "", hsn: "39261011", qty: 4, unit: "NOS", rate: 55, baseRate: 50 },
+  { id: 11, name: "BNC JACK", serial: "", hsn: "85366990", qty: 8, unit: "NOS", rate: 25, baseRate: 23 },
+  { id: 12, name: "DC JACK", serial: "", hsn: "85366990", qty: 4, unit: "PCS", rate: 15, baseRate: 14 },
+  { id: 13, name: "DVM WALL MOUNT", serial: "", hsn: "73262090", qty: 1, unit: "NOS", rate: 250, baseRate: 227 },
+  { id: 14, name: "U CLIP(3917)A", serial: "", hsn: "3917", qty: 2, unit: "PKT", rate: 100, baseRate: 91 }
 ];
 
 const getFormattedCurrentDate = () => {
@@ -198,9 +198,29 @@ export const InvoiceDashboard: React.FC = () => {
     setTempRate(String(currentRate));
   };
 
-  const handleSaveRate = (id: number) => {
+  const handleSaveRate = async (id: number) => {
     const parsed = parseFloat(tempRate);
     const validRate = isNaN(parsed) || parsed < 0 ? 0 : parsed;
+    const targetItem = items.find((i) => i.id === id);
+
+    if (targetItem) {
+      const baseRate = targetItem.baseRate || Math.round(targetItem.rate / 1.10);
+      const minAllowed = baseRate * 0.90; // 10% lower than Base Rate
+
+      if (invoiceMode === 'B2B' && validRate < minAllowed) {
+        setEditingRateId(null);
+        await confirmDialog({
+          title: 'Rate Below B2B Minimum Limit!',
+          message: `In B2B Mode, Rate cannot be reduced below 10% lower than Base Rate (Minimum allowed: ₹${minAllowed.toFixed(2)} for Base Rate ₹${baseRate}). Changes rejected.`,
+          icon: 'warning',
+          confirmText: 'OK',
+          cancelText: '',
+          isDanger: true
+        });
+        return;
+      }
+    }
+
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, rate: validRate } : i)));
     setEditingRateId(null);
   };
@@ -213,13 +233,38 @@ export const InvoiceDashboard: React.FC = () => {
   // Full Row Editing Handlers
   const handleStartEditRow = (item: InvoiceItem) => {
     setEditingRowId(item.id);
-    setEditRowData({ ...item });
+    const baseRateVal = item.baseRate || Math.round(item.rate / 1.10);
+    setEditRowData({ ...item, baseRate: baseRateVal });
   };
 
-  const handleSaveEditRow = () => {
+  const handleSaveEditRow = async () => {
     if (!editRowData) return;
+
+    const baseRateVal = typeof editRowData.baseRate === 'number' && editRowData.baseRate > 0
+      ? editRowData.baseRate
+      : Math.round(editRowData.rate / 1.10);
+
+    const minAllowed = baseRateVal * 0.90;
+
+    if (invoiceMode === 'B2B' && editRowData.rate < minAllowed) {
+      await confirmDialog({
+        title: 'Rate Below B2B Minimum Limit!',
+        message: `In B2B Mode, Rate (₹${editRowData.rate}) cannot be set lower than 10% of Base Rate (Minimum allowed: ₹${minAllowed.toFixed(2)} for Base Rate ₹${baseRateVal}). Changes rejected.`,
+        icon: 'warning',
+        confirmText: 'OK',
+        cancelText: '',
+        isDanger: true
+      });
+      return;
+    }
+
+    const updatedItem: InvoiceItem = {
+      ...editRowData,
+      baseRate: baseRateVal
+    };
+
     setItems((prev) =>
-      prev.map((i) => (i.id === editRowData.id ? { ...editRowData } : i))
+      prev.map((i) => (i.id === updatedItem.id ? updatedItem : i))
     );
     setEditingRowId(null);
     setEditRowData(null);
@@ -875,6 +920,7 @@ export const InvoiceDashboard: React.FC = () => {
                     <th className="w-16 py-1.5 px-1 text-center border-r border-slate-800">HSN Code</th>
                     <th className="w-20 py-1.5 px-1 text-center border-r border-slate-800">Qty</th>
                     <th className="w-11 py-1.5 px-1 text-center border-r border-slate-800">Unit</th>
+                    <th className="w-20 py-1.5 px-1 text-right border-r border-slate-800 no-print text-brand-900">Base Rate (₹)</th>
                     <th className="w-24 py-1.5 px-1 text-right border-r border-slate-800">Rate (₹)</th>
                     <th className="w-24 py-1.5 px-1 text-right border-r border-slate-800">Amount (₹)</th>
                     <th className="col-actions w-16 py-1.5 px-1 text-center no-print">Actions</th>
@@ -938,6 +984,23 @@ export const InvoiceDashboard: React.FC = () => {
                               <option value="MTR">MTR</option>
                               <option value="SET">SET</option>
                             </select>
+                          </td>
+                          <td className="w-20 py-1 px-1 text-right border-r border-slate-800 no-print">
+                            <input
+                              type="number"
+                              step="any"
+                              min="0"
+                              value={editRowData.baseRate ?? Math.round(editRowData.rate / 1.10)}
+                              onChange={(e) => {
+                                const newBase = parseFloat(e.target.value) || 0;
+                                setEditRowData({
+                                  ...editRowData,
+                                  baseRate: newBase,
+                                  rate: Math.round(newBase * 1.10)
+                                });
+                              }}
+                              className="w-full text-right font-semibold text-slate-700 bg-white border border-blue-500 rounded px-1 py-0.5 outline-none text-[10px] shadow-xs"
+                            />
                           </td>
                           <td className="w-24 py-1 px-1 text-right border-r border-slate-800">
                             <input
@@ -1019,6 +1082,13 @@ export const InvoiceDashboard: React.FC = () => {
                           title="Click to edit unit"
                         >
                           {item.unit}
+                        </td>
+                        <td
+                          className="w-20 py-1.5 px-1 text-right font-mono text-slate-600 border-r border-slate-800 no-print cursor-pointer hover:bg-amber-50/60 transition-colors"
+                          onClick={() => handleStartEditRow(item)}
+                          title="Click to edit Base Rate (Rate auto-sets +10%)"
+                        >
+                          {formatINR(item.baseRate ?? Math.round(item.rate / 1.10))}
                         </td>
                         <td className="w-24 py-1.5 px-1 text-right border-r border-slate-800">
                           {isEditingRate ? (
