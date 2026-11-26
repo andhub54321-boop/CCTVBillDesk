@@ -34,6 +34,12 @@ const DEFAULT_SEED_ITEMS: InvoiceItem[] = [
   { id: 14, name: "U CLIP(3917)A", serial: "", hsn: "3917", qty: 2, unit: "PKT", rate: 100 }
 ];
 
+const getFormattedCurrentDate = () => {
+  const now = new Date();
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${String(now.getDate()).padStart(2, '0')}-${months[now.getMonth()]}-${now.getFullYear()}`;
+};
+
 export const InvoiceDashboard: React.FC = () => {
   // Main Dashboard State
   const [items, setItems] = useState<InvoiceItem[]>(DEFAULT_SEED_ITEMS);
@@ -44,9 +50,16 @@ export const InvoiceDashboard: React.FC = () => {
     state: 'Assam (18)'
   });
   const [invNo, setInvNo] = useState('XE-2026-014');
-  const [invDate, setInvDate] = useState('15-Nov-2026');
+  const [invDate, setInvDate] = useState(getFormattedCurrentDate());
   const [payMode, setPayMode] = useState('UPI / Cash');
   const [place, setPlace] = useState('Assam (18)');
+
+  // Custom Header & Summary States
+  const [gstStatus, setGstStatus] = useState('All prices inclusive of GST');
+  const [companyMobile, setCompanyMobile] = useState('+91 98540 XXXXX');
+  const [companyEmail, setCompanyEmail] = useState('xondhan.electronics@gmail.com');
+  const [companyAddress, setCompanyAddress] = useState('Borghuli, Kaliabor, Nagaon, Assam-782120');
+  const [companySubHeader, setCompanySubHeader] = useState('CCTV Surveillance Systems & Security Solutions');
 
   // Assets & Saved Data
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -305,9 +318,7 @@ export const InvoiceDashboard: React.FC = () => {
         contact: '+91 98540 XXXXX',
         state: 'Assam (18)'
       });
-      const now = new Date();
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      setInvDate(`${String(now.getDate()).padStart(2, '0')}-${months[now.getMonth()]}-${now.getFullYear()}`);
+      setInvDate(getFormattedCurrentDate());
       setItems(DEFAULT_SEED_ITEMS);
       showToast('Initialized new invoice');
     }
@@ -323,6 +334,11 @@ export const InvoiceDashboard: React.FC = () => {
       customer,
       items,
       totals,
+      gstStatus,
+      companyMobile,
+      companyEmail,
+      companyAddress,
+      companySubHeader,
       savedAt: new Date().toISOString()
     };
 
@@ -334,13 +350,18 @@ export const InvoiceDashboard: React.FC = () => {
 
   const handleLoadInvoice = (inv: InvoiceData) => {
     setInvNo(inv.invoiceNo || '');
-    setInvDate(inv.date || '');
+    setInvDate(inv.date || getFormattedCurrentDate());
     setPayMode(inv.payMode || 'UPI / Cash');
     setPlace(inv.place || 'Assam (18)');
     if (inv.customer) {
       setCustomer(inv.customer);
     }
     setItems(inv.items ? [...inv.items] : []);
+    if (inv.gstStatus) setGstStatus(inv.gstStatus);
+    if (inv.companyMobile) setCompanyMobile(inv.companyMobile);
+    if (inv.companyEmail) setCompanyEmail(inv.companyEmail);
+    if (inv.companyAddress) setCompanyAddress(inv.companyAddress);
+    if (inv.companySubHeader) setCompanySubHeader(inv.companySubHeader);
     showToast(`Loaded invoice ${inv.invoiceNo}`);
   };
 
@@ -637,18 +658,40 @@ export const InvoiceDashboard: React.FC = () => {
                 )}
               </div>
 
-              {/* Center Company Header */}
+              {/* Center Company Header (Editable) */}
               <div className="flex-1 text-center pr-12">
                 <h1 className="brand-title text-[26px] font-extrabold text-brand-800 uppercase leading-tight drop-shadow-sm">
                   XONDHAN ELECTRONICS
                 </h1>
-                <p className="text-[11.5px] font-semibold text-slate-800 mt-1">
-                  CCTV Surveillance Systems & Security Solutions
-                </p>
-                <p className="text-[10.5px] text-slate-600">Borghuli, Kaliabor, Nagaon, Assam-782120</p>
-                <p className="text-[10.5px] text-slate-600">
-                  Mobile: +91 98540 XXXXX | Email: xondhan.electronics@gmail.com
-                </p>
+                <input
+                  type="text"
+                  value={companySubHeader}
+                  onChange={(e) => setCompanySubHeader(e.target.value)}
+                  className="editable-field text-[11.5px] font-semibold text-slate-800 mt-0.5 text-center w-full outline-none hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded border border-transparent focus:border-blue-500 transition"
+                />
+                <input
+                  type="text"
+                  value={companyAddress}
+                  onChange={(e) => setCompanyAddress(e.target.value)}
+                  className="editable-field text-[10.5px] text-slate-600 text-center w-full outline-none hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded border border-transparent focus:border-blue-500 transition"
+                />
+                <div className="flex items-center justify-center gap-1 text-[10.5px] text-slate-600 mt-0.5">
+                  <span className="font-semibold text-slate-700">Mobile:</span>
+                  <input
+                    type="text"
+                    value={companyMobile}
+                    onChange={(e) => setCompanyMobile(e.target.value)}
+                    className="editable-field text-slate-900 outline-none hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded border border-transparent focus:border-blue-500 transition font-medium text-center"
+                  />
+                  <span className="mx-1 text-slate-400">|</span>
+                  <span className="font-semibold text-slate-700">Email:</span>
+                  <input
+                    type="text"
+                    value={companyEmail}
+                    onChange={(e) => setCompanyEmail(e.target.value)}
+                    className="editable-field text-slate-900 outline-none hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded border border-transparent focus:border-blue-500 transition font-medium text-center"
+                  />
+                </div>
               </div>
             </header>
 
@@ -975,8 +1018,16 @@ export const InvoiceDashboard: React.FC = () => {
                   <td className="w-24 p-1.5 text-right font-bold">{formatINR(totals.totalSum)}</td>
                 </tr>
                 <tr className="border-b border-slate-800 text-[10px]">
-                  <td colSpan={3} className="p-1.5 text-slate-500 border-r border-slate-800">
-                    GST Status: All prices inclusive of GST
+                  <td colSpan={3} className="p-1.5 text-slate-700 border-r border-slate-800">
+                    <div className="flex items-center gap-1">
+                      <span className="font-semibold text-slate-700">GST Status:</span>
+                      <input
+                        type="text"
+                        value={gstStatus}
+                        onChange={(e) => setGstStatus(e.target.value)}
+                        className="editable-field text-slate-900 flex-1 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 font-medium transition"
+                      />
+                    </div>
                   </td>
                   <td className="p-1.5 text-right font-semibold border-r border-slate-800">Round Off:</td>
                   <td className="p-1.5 text-right font-bold">₹0.00</td>

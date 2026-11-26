@@ -29,6 +29,11 @@ export interface InvoiceData {
   customer: InvoiceCustomer;
   items: InvoiceItem[];
   totals: InvoiceTotals;
+  gstStatus?: string;
+  companyMobile?: string;
+  companyEmail?: string;
+  companyAddress?: string;
+  companySubHeader?: string;
   savedAt: string;
 }
 
