@@ -19,20 +19,20 @@ import { ToastContainer, ToastMessage } from '../Toast/ToastContainer';
 import { InstallPrompt } from '../InstallPrompt/InstallPrompt';
 
 const DEFAULT_SEED_ITEMS: InvoiceItem[] = [
-  { id: 1, name: "DVR 8 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 2, unit: "NOS", rate: 4500, baseRate: 4091, mrp: 5800 },
-  { id: 2, name: "DVR 4 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 1, unit: "NOS", rate: 2450, baseRate: 2227, mrp: 3200 },
-  { id: 3, name: "CAMERA 2.4 BULLET COLOUR(ILLUMAX)", serial: "CAUAT80DM2DWH0CQ, ZTS2OGV764JZWTU3, 713BIXK7SG4TGQ2, 22JF0GZL5JVGG7H", hsn: "852580", qty: 4, unit: "PCS", rate: 1400, baseRate: 1273, mrp: 1850 },
-  { id: 4, name: "CAMERA 2.4 DOME COLOUR(ILLUMAX)", serial: "", hsn: "85258900", qty: 1, unit: "PCS", rate: 1400, baseRate: 1273, mrp: 1850 },
-  { id: 5, name: "POWER SUPPLY 10 AMPS PD08", serial: "B5LLPQHSUGU81OL", hsn: "850440", qty: 1, unit: "PCS", rate: 700, baseRate: 636, mrp: 950 },
-  { id: 6, name: "HDD 500GB DAICHI", serial: "DGZE00C03268", hsn: "847170", qty: 1, unit: "NOS", rate: 2500, baseRate: 2273, mrp: 3200 },
-  { id: 7, name: "MONITOR", serial: "", hsn: "85285200", qty: 1, unit: "NOS", rate: 2570, baseRate: 2336, mrp: 3400 },
-  { id: 8, name: "CABLE 3+1 CC CPPLUS (90MTR)", serial: "", hsn: "854449", qty: 1, unit: "ROLL", rate: 1450, baseRate: 1318, mrp: 1900 },
-  { id: 9, name: "RACK 2U CP PLUS", serial: "", hsn: "84733099", qty: 1, unit: "NOS", rate: 650, baseRate: 591, mrp: 850 },
-  { id: 10, name: "PVC BOX 4*4", serial: "", hsn: "39261011", qty: 4, unit: "NOS", rate: 55, baseRate: 50, mrp: 75 },
-  { id: 11, name: "BNC JACK", serial: "", hsn: "85366990", qty: 8, unit: "NOS", rate: 25, baseRate: 23, mrp: 35 },
-  { id: 12, name: "DC JACK", serial: "", hsn: "85366990", qty: 4, unit: "PCS", rate: 15, baseRate: 14, mrp: 25 },
-  { id: 13, name: "DVM WALL MOUNT", serial: "", hsn: "73262090", qty: 1, unit: "NOS", rate: 250, baseRate: 227, mrp: 350 },
-  { id: 14, name: "U CLIP(3917)A", serial: "", hsn: "3917", qty: 2, unit: "PKT", rate: 100, baseRate: 91, mrp: 140 }
+  { id: 1, name: "DVR 8 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 2, unit: "NOS", rate: 4500.00, baseRate: 4090.91, mrp: 5800.00 },
+  { id: 2, name: "DVR 4 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 1, unit: "NOS", rate: 2450.00, baseRate: 2227.27, mrp: 3200.00 },
+  { id: 3, name: "CAMERA 2.4 BULLET COLOUR(ILLUMAX)", serial: "CAUAT80DM2DWH0CQ, ZTS2OGV764JZWTU3, 713BIXK7SG4TGQ2, 22JF0GZL5JVGG7H", hsn: "852580", qty: 4, unit: "PCS", rate: 1400.00, baseRate: 1272.73, mrp: 1850.00 },
+  { id: 4, name: "CAMERA 2.4 DOME COLOUR(ILLUMAX)", serial: "", hsn: "85258900", qty: 1, unit: "PCS", rate: 1400.00, baseRate: 1272.73, mrp: 1850.00 },
+  { id: 5, name: "POWER SUPPLY 10 AMPS PD08", serial: "B5LLPQHSUGU81OL", hsn: "850440", qty: 1, unit: "PCS", rate: 700.00, baseRate: 636.36, mrp: 950.00 },
+  { id: 6, name: "HDD 500GB DAICHI", serial: "DGZE00C03268", hsn: "847170", qty: 1, unit: "NOS", rate: 2500.00, baseRate: 2272.73, mrp: 3200.00 },
+  { id: 7, name: "MONITOR", serial: "", hsn: "85285200", qty: 1, unit: "NOS", rate: 2570.00, baseRate: 2336.36, mrp: 3400.00 },
+  { id: 8, name: "CABLE 3+1 CC CPPLUS (90MTR)", serial: "", hsn: "854449", qty: 1, unit: "ROLL", rate: 1450.00, baseRate: 1318.18, mrp: 1900.00 },
+  { id: 9, name: "RACK 2U CP PLUS", serial: "", hsn: "84733099", qty: 1, unit: "NOS", rate: 650.00, baseRate: 590.91, mrp: 850.00 },
+  { id: 10, name: "PVC BOX 4*4", serial: "", hsn: "39261011", qty: 4, unit: "NOS", rate: 55.00, baseRate: 50.00, mrp: 75.00 },
+  { id: 11, name: "BNC JACK", serial: "", hsn: "85366990", qty: 8, unit: "NOS", rate: 25.00, baseRate: 22.73, mrp: 35.00 },
+  { id: 12, name: "DC JACK", serial: "", hsn: "85366990", qty: 4, unit: "PCS", rate: 15.00, baseRate: 13.64, mrp: 25.00 },
+  { id: 13, name: "DVM WALL MOUNT", serial: "", hsn: "73262090", qty: 1, unit: "NOS", rate: 250.00, baseRate: 227.27, mrp: 350.00 },
+  { id: 14, name: "U CLIP(3917)A", serial: "", hsn: "3917", qty: 2, unit: "PKT", rate: 100.00, baseRate: 90.91, mrp: 140.00 }
 ];
 
 const getFormattedCurrentDate = () => {
@@ -147,12 +147,24 @@ export const InvoiceDashboard: React.FC = () => {
     );
   }, [items, searchTerm]);
 
-  // Totals Calculation
+  // Totals & Bottom Round-Off Calculation
   const totals = useMemo(() => {
     const totalCount = items.length;
     const totalUnits = items.reduce((acc, curr) => acc + Number(curr.qty), 0);
-    const totalSum = items.reduce((acc, curr) => acc + curr.rate * curr.qty, 0);
-    return { totalCount, totalUnits, totalSum };
+    const rawSubtotal = items.reduce((acc, curr) => acc + (Number(curr.rate) * Number(curr.qty)), 0);
+    const subtotal = parseFloat(rawSubtotal.toFixed(2));
+
+    // Round Off at the bottom to nearest integer rupee
+    const grandTotalInteger = Math.round(subtotal);
+    const roundOff = parseFloat((grandTotalInteger - subtotal).toFixed(2));
+
+    return {
+      totalCount,
+      totalUnits,
+      subtotal,
+      roundOff,
+      totalSum: grandTotalInteger
+    };
   }, [items]);
 
   // Item Handlers
@@ -211,18 +223,18 @@ export const InvoiceDashboard: React.FC = () => {
     showToast('Line item updated successfully');
   };
 
-  // Mode Switching & Automatic Rate Recalculation
+  // Mode Switching & Automatic Rate Recalculation (Exact 2 Decimals, No Row Integer Rounding)
   const handleSwitchToRetail = () => {
     setInvoiceMode('RETAIL');
     setItems((prev) =>
       prev.map((item) => {
         const bRate = typeof item.baseRate === 'number' && item.baseRate > 0
           ? item.baseRate
-          : Math.round(item.rate / 1.10);
+          : parseFloat((item.rate / 1.10).toFixed(2));
         return {
           ...item,
           baseRate: bRate,
-          rate: Math.round(bRate * 1.30)
+          rate: parseFloat((bRate * 1.30).toFixed(2))
         };
       })
     );
@@ -235,11 +247,11 @@ export const InvoiceDashboard: React.FC = () => {
       prev.map((item) => {
         const bRate = typeof item.baseRate === 'number' && item.baseRate > 0
           ? item.baseRate
-          : Math.round(item.rate / 1.30);
+          : parseFloat((item.rate / 1.30).toFixed(2));
         return {
           ...item,
           baseRate: bRate,
-          rate: Math.round(bRate * 1.10)
+          rate: parseFloat((bRate * 1.10).toFixed(2))
         };
       })
     );
@@ -1016,7 +1028,7 @@ export const InvoiceDashboard: React.FC = () => {
                   </td>
                   <td className="w-11 p-1.5 text-center font-bold border-r border-slate-800">Units</td>
                   <td className="w-24 p-1.5 text-right font-bold border-r border-slate-800">Sub Total:</td>
-                  <td className="w-24 p-1.5 text-right font-bold">{formatINR(totals.totalSum)}</td>
+                  <td className="w-24 p-1.5 text-right font-bold font-mono">{formatINR(totals.subtotal)}</td>
                 </tr>
                 <tr className="border-b border-slate-800 text-[10px]">
                   <td colSpan={3} className="p-1.5 text-slate-700 border-r border-slate-800">
@@ -1031,7 +1043,9 @@ export const InvoiceDashboard: React.FC = () => {
                     </div>
                   </td>
                   <td className="p-1.5 text-right font-semibold border-r border-slate-800">Round Off:</td>
-                  <td className="p-1.5 text-right font-bold">₹0.00</td>
+                  <td className="p-1.5 text-right font-bold font-mono">
+                    {totals.roundOff >= 0 ? `+${formatINR(totals.roundOff)}` : formatINR(totals.roundOff)}
+                  </td>
                 </tr>
                 <tr className="bg-slate-50 font-medium">
                   <td colSpan={3} className="p-1.5 border-r border-slate-800 text-[10px]">
@@ -1040,7 +1054,7 @@ export const InvoiceDashboard: React.FC = () => {
                   <td className="p-1.5 text-right font-bold text-xs bg-slate-100 border-r border-slate-800">
                     Grand Total:
                   </td>
-                  <td className="p-1.5 text-right font-bold text-xs bg-slate-100 text-brand-800">
+                  <td className="p-1.5 text-right font-bold text-xs bg-slate-100 text-brand-800 font-mono">
                     {formatINR(totals.totalSum)}
                   </td>
                 </tr>

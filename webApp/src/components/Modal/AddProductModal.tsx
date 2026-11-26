@@ -39,10 +39,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     if (!isNaN(num)) {
       setBaseRate(num);
       if (rate === '' || rate === 0) {
-        const calculatedRate = Math.round(num * marginPct);
+        const calculatedRate = parseFloat((num * marginPct).toFixed(2));
         setRate(calculatedRate);
         if (typeof mrp === 'number' && mrp > 0 && calculatedRate > mrp) {
-          setErrorMsg(`Rate (₹${calculatedRate}) cannot exceed MRP (₹${mrp})`);
+          setErrorMsg(`Rate (₹${calculatedRate.toFixed(2)}) cannot exceed MRP (₹${mrp.toFixed(2)})`);
         } else {
           setErrorMsg(null);
         }
@@ -60,11 +60,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     if (!isNaN(num)) {
       setRate(num);
       const bRate = typeof baseRate === 'number' ? baseRate : 0;
-      const minWholesale = Math.round((bRate * 1.10) * 100) / 100;
+      const minWholesale = parseFloat((bRate * 1.10).toFixed(2));
       if (typeof mrp === 'number' && mrp > 0 && num > mrp) {
-        setErrorMsg(`Selling Rate (₹${num}) cannot exceed MRP (₹${mrp})`);
+        setErrorMsg(`Selling Rate (₹${num.toFixed(2)}) cannot exceed MRP (₹${mrp.toFixed(2)})`);
       } else if (isWholesale && bRate > 0 && num < (minWholesale - 0.001)) {
-        setErrorMsg(`Wholesale Guard: Rate (₹${num}) cannot be below Base Rate + 10% (Min ₹${minWholesale.toFixed(2)})`);
+        setErrorMsg(`Wholesale Guard: Rate (₹${num.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minWholesale.toFixed(2)})`);
       } else {
         setErrorMsg(null);
       }
@@ -75,18 +75,18 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    const finalRate = typeof rate === 'number' ? rate : (typeof baseRate === 'number' ? Math.round(baseRate * marginPct) : 0);
-    const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / marginPct);
+    const finalRate = typeof rate === 'number' ? rate : (typeof baseRate === 'number' ? parseFloat((baseRate * marginPct).toFixed(2)) : 0);
+    const finalBaseRate = typeof baseRate === 'number' ? baseRate : parseFloat((finalRate / marginPct).toFixed(2));
     const finalMrp = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
-    const minWholesale = Math.round((finalBaseRate * 1.10) * 100) / 100;
+    const minWholesale = parseFloat((finalBaseRate * 1.10).toFixed(2));
 
     if (finalMrp > 0 && finalRate > finalMrp) {
-      setErrorMsg(`Selling Rate (₹${finalRate}) exceeds MRP (₹${finalMrp}). Changes blocked.`);
+      setErrorMsg(`Selling Rate (₹${finalRate.toFixed(2)}) exceeds MRP (₹${finalMrp.toFixed(2)}). Changes blocked.`);
       return;
     }
 
     if (isWholesale && finalBaseRate > 0 && finalRate < (minWholesale - 0.001)) {
-      setErrorMsg(`Wholesale Guard: Rate (₹${finalRate}) cannot be below Base Rate + 10% (Min ₹${minWholesale.toFixed(2)})`);
+      setErrorMsg(`Wholesale Guard: Rate (₹${finalRate.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minWholesale.toFixed(2)})`);
       return;
     }
 

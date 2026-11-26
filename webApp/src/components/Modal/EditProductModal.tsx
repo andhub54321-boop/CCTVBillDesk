@@ -38,7 +38,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setUnit(item.unit || 'NOS');
       const bRate = typeof item.baseRate === 'number' && item.baseRate > 0
         ? item.baseRate
-        : Math.round(item.rate / marginPct);
+        : parseFloat((item.rate / marginPct).toFixed(2));
       setBaseRate(bRate);
       setRate(item.rate);
       setMrp(typeof item.mrp === 'number' && item.mrp > 0 ? item.mrp : '');
@@ -49,8 +49,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
 
   if (!isOpen || !item) return null;
 
-  const currentBaseRate = typeof baseRate === 'number' ? baseRate : Math.round((typeof rate === 'number' ? rate : 0) / marginPct);
-  const minWholesaleRate = Math.round((currentBaseRate * 1.10) * 100) / 100; // Wholesale minimum rate = Base Rate + 10%
+  const currentBaseRate = typeof baseRate === 'number' ? baseRate : parseFloat(((typeof rate === 'number' ? rate : 0) / marginPct).toFixed(2));
+  const minWholesaleRate = parseFloat((currentBaseRate * 1.10).toFixed(2)); // Wholesale minimum rate = Base Rate + 10%
   const currentRateNum = typeof rate === 'number' ? rate : 0;
   const currentMrpNum = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
 
@@ -66,11 +66,11 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     const num = parseFloat(val);
     if (!isNaN(num)) {
       setBaseRate(num);
-      const autoRate = Math.round(num * marginPct);
+      const autoRate = parseFloat((num * marginPct).toFixed(2));
       setRate(autoRate);
-      const minVal = Math.round((num * 1.10) * 100) / 100;
+      const minVal = parseFloat((num * 1.10).toFixed(2));
       if (currentMrpNum > 0 && autoRate > currentMrpNum) {
-        setErrorMsg(`Selling Rate (₹${autoRate}) exceeds MRP (₹${currentMrpNum})`);
+        setErrorMsg(`Selling Rate (₹${autoRate.toFixed(2)}) exceeds MRP (₹${currentMrpNum.toFixed(2)})`);
       } else if (isWholesale && autoRate < (minVal - 0.001)) {
         setErrorMsg(`In Wholesale Mode, Rate cannot be set below Base Rate + 10% (Min ₹${minVal.toFixed(2)})`);
       } else {
@@ -89,9 +89,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     if (!isNaN(num)) {
       setRate(num);
       if (currentMrpNum > 0 && num > currentMrpNum) {
-        setErrorMsg(`MRP Limit: Selling Rate (₹${num}) cannot exceed MRP (₹${currentMrpNum})`);
+        setErrorMsg(`MRP Limit: Selling Rate (₹${num.toFixed(2)}) cannot exceed MRP (₹${currentMrpNum.toFixed(2)})`);
       } else if (isWholesale && num < (minWholesaleRate - 0.001)) {
-        setErrorMsg(`Wholesale Guard: Rate (₹${num}) cannot be below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
+        setErrorMsg(`Wholesale Guard: Rate (₹${num.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
       } else {
         setErrorMsg(null);
       }
@@ -103,17 +103,17 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     if (!name.trim()) return;
 
     if (isExceedingMrp) {
-      setErrorMsg(`Cannot save: Rate (₹${currentRateNum}) exceeds MRP (₹${currentMrpNum})`);
+      setErrorMsg(`Cannot save: Rate (₹${currentRateNum.toFixed(2)}) exceeds MRP (₹${currentMrpNum.toFixed(2)})`);
       return;
     }
 
     if (isRateBelowMin) {
-      setErrorMsg(`Cannot save: Rate (₹${currentRateNum}) is below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
+      setErrorMsg(`Cannot save: Rate (₹${currentRateNum.toFixed(2)}) is below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
       return;
     }
 
-    const finalRate = typeof rate === 'number' ? rate : Math.round(currentBaseRate * marginPct);
-    const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / marginPct);
+    const finalRate = typeof rate === 'number' ? rate : parseFloat((currentBaseRate * marginPct).toFixed(2));
+    const finalBaseRate = typeof baseRate === 'number' ? baseRate : parseFloat((finalRate / marginPct).toFixed(2));
     const finalMrp = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
 
     onSave({
