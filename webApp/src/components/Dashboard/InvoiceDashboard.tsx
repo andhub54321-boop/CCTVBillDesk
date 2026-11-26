@@ -211,6 +211,41 @@ export const InvoiceDashboard: React.FC = () => {
     showToast('Line item updated successfully');
   };
 
+  // Mode Switching & Automatic Rate Recalculation
+  const handleSwitchToRetail = () => {
+    setInvoiceMode('RETAIL');
+    setItems((prev) =>
+      prev.map((item) => {
+        const bRate = typeof item.baseRate === 'number' && item.baseRate > 0
+          ? item.baseRate
+          : Math.round(item.rate / 1.10);
+        return {
+          ...item,
+          baseRate: bRate,
+          rate: Math.round(bRate * 1.30)
+        };
+      })
+    );
+    showToast('Switched to Retail Mode (Rates +30% of Base Rate)');
+  };
+
+  const handleSwitchToWholesale = () => {
+    setInvoiceMode('WHOLESALE');
+    setItems((prev) =>
+      prev.map((item) => {
+        const bRate = typeof item.baseRate === 'number' && item.baseRate > 0
+          ? item.baseRate
+          : Math.round(item.rate / 1.30);
+        return {
+          ...item,
+          baseRate: bRate,
+          rate: Math.round(bRate * 1.10)
+        };
+      })
+    );
+    showToast('Switched to Wholesale Mode (Rates +10% of Base Rate)');
+  };
+
   // Logo & Signature Uploads
   const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -472,10 +507,7 @@ export const InvoiceDashboard: React.FC = () => {
             <div className="grid grid-cols-2 gap-2 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
               <button
                 type="button"
-                onClick={() => {
-                  setInvoiceMode('RETAIL');
-                  showToast('Switched to Retail Mode');
-                }}
+                onClick={handleSwitchToRetail}
                 className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs ${
                   invoiceMode === 'RETAIL'
                     ? 'bg-gradient-to-r from-brand-900 to-brand-800 text-white shadow-md scale-[1.02]'
@@ -483,15 +515,12 @@ export const InvoiceDashboard: React.FC = () => {
                 }`}
               >
                 <span className="material-icons text-sm">{invoiceMode === 'RETAIL' ? 'check_circle' : 'shopping_bag'}</span>
-                Retail Mode
+                Retail Mode (+30%)
               </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  setInvoiceMode('WHOLESALE');
-                  showToast('Switched to Wholesale Mode');
-                }}
+                onClick={handleSwitchToWholesale}
                 className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs ${
                   invoiceMode === 'WHOLESALE' || invoiceMode === 'B2B'
                     ? 'bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md scale-[1.02]'
@@ -499,7 +528,7 @@ export const InvoiceDashboard: React.FC = () => {
                 }`}
               >
                 <span className="material-icons text-sm">{invoiceMode === 'WHOLESALE' || invoiceMode === 'B2B' ? 'check_circle' : 'storefront'}</span>
-                Wholesale Mode
+                Wholesale Mode (+10%)
               </button>
             </div>
           </div>
@@ -1085,6 +1114,7 @@ export const InvoiceDashboard: React.FC = () => {
       {/* Add Line Item Modal */}
       <AddProductModal
         isOpen={isModalOpen}
+        invoiceMode={invoiceMode}
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddItem}
       />

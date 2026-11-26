@@ -25,6 +25,10 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [qty, setQty] = useState<number>(1);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const isWholesale = invoiceMode === 'WHOLESALE' || (invoiceMode as string) === 'B2B';
+  const marginPct = isWholesale ? 1.10 : 1.30;
+  const pctLabel = isWholesale ? '+10%' : '+30%';
+
   useEffect(() => {
     if (item) {
       setName(item.name || '');
@@ -33,18 +37,17 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setUnit(item.unit || 'NOS');
       const bRate = typeof item.baseRate === 'number' && item.baseRate > 0
         ? item.baseRate
-        : Math.round(item.rate / 1.10);
+        : Math.round(item.rate / marginPct);
       setBaseRate(bRate);
       setRate(item.rate);
       setQty(item.qty || 1);
       setErrorMsg(null);
     }
-  }, [item, isOpen]);
+  }, [item, isOpen, marginPct]);
 
   if (!isOpen || !item) return null;
 
-  const currentBaseRate = typeof baseRate === 'number' ? baseRate : Math.round((typeof rate === 'number' ? rate : 0) / 1.10);
-  const isWholesale = invoiceMode === 'WHOLESALE' || (invoiceMode as string) === 'B2B';
+  const currentBaseRate = typeof baseRate === 'number' ? baseRate : Math.round((typeof rate === 'number' ? rate : 0) / marginPct);
   const minAllowedRate = currentBaseRate * 0.90; // 10% lower than Base Rate
   const currentRateNum = typeof rate === 'number' ? rate : 0;
   const isRateInvalid = isWholesale && currentRateNum < minAllowedRate;
@@ -57,7 +60,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     const num = parseFloat(val);
     if (!isNaN(num)) {
       setBaseRate(num);
-      const autoRate = Math.round(num * 1.10);
+      const autoRate = Math.round(num * marginPct);
       setRate(autoRate);
       if (isWholesale && autoRate < num * 0.90) {
         setErrorMsg(`In Wholesale Mode, Rate cannot be set below ₹${(num * 0.90).toFixed(2)}`);
@@ -223,7 +226,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
             <div>
               <label className="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1">
                 <span className="material-icons text-sm text-emerald-700">payments</span>
-                Rate (₹)
+                Rate ({pctLabel})
               </label>
               <input
                 type="number"

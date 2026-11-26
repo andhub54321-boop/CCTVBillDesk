@@ -3,11 +3,17 @@ import { InvoiceItem } from '../../services/idbStorage';
 
 interface AddProductModalProps {
   isOpen: boolean;
+  invoiceMode?: 'RETAIL' | 'WHOLESALE' | 'B2B';
   onClose: () => void;
   onAdd: (item: Omit<InvoiceItem, 'id'>) => void;
 }
 
-export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onAdd }) => {
+export const AddProductModal: React.FC<AddProductModalProps> = ({
+  isOpen,
+  invoiceMode = 'RETAIL',
+  onClose,
+  onAdd
+}) => {
   const [name, setName] = useState('');
   const [serial, setSerial] = useState('');
   const [hsn, setHsn] = useState('852580');
@@ -18,6 +24,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
   if (!isOpen) return null;
 
+  const isWholesale = invoiceMode === 'WHOLESALE' || (invoiceMode as string) === 'B2B';
+  const marginPct = isWholesale ? 1.10 : 1.30;
+  const pctLabel = isWholesale ? '+10%' : '+30%';
+
   const handleBaseRateChange = (val: string) => {
     if (val === '') {
       setBaseRate('');
@@ -27,7 +37,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     if (!isNaN(num)) {
       setBaseRate(num);
       if (rate === '' || rate === 0) {
-        setRate(Math.round(num * 1.10));
+        setRate(Math.round(num * marginPct));
       }
     }
   };
@@ -36,8 +46,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     e.preventDefault();
     if (!name.trim()) return;
 
-    const finalRate = typeof rate === 'number' ? rate : (typeof baseRate === 'number' ? Math.round(baseRate * 1.10) : 0);
-    const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / 1.10);
+    const finalRate = typeof rate === 'number' ? rate : (typeof baseRate === 'number' ? Math.round(baseRate * marginPct) : 0);
+    const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / marginPct);
 
     onAdd({
       name: name.trim(),
@@ -129,7 +139,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
               />
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Rate (+10%)</label>
+              <label className="block font-semibold text-slate-700 mb-1">Rate ({pctLabel})</label>
               <input
                 type="number"
                 required
