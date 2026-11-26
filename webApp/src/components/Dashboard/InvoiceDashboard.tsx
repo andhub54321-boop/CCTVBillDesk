@@ -60,6 +60,10 @@ export const InvoiceDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [, setCanInstall] = useState(false);
 
+  // Full Row Editing States
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+  const [editRowData, setEditRowData] = useState<InvoiceItem | null>(null);
+
   // Material Dialog System State
   const [dialogState, setDialogState] = useState<{
     isOpen: boolean;
@@ -186,6 +190,27 @@ export const InvoiceDashboard: React.FC = () => {
   const handleAddItem = (newItem: Omit<InvoiceItem, 'id'>) => {
     setItems((prev) => [...prev, { ...newItem, id: Date.now() }]);
     showToast('Product added to invoice');
+  };
+
+  // Full Row Editing Handlers
+  const handleStartEditRow = (item: InvoiceItem) => {
+    setEditingRowId(item.id);
+    setEditRowData({ ...item });
+  };
+
+  const handleSaveEditRow = () => {
+    if (!editRowData) return;
+    setItems((prev) =>
+      prev.map((i) => (i.id === editRowData.id ? { ...editRowData } : i))
+    );
+    setEditingRowId(null);
+    setEditRowData(null);
+    showToast('Row updated successfully');
+  };
+
+  const handleCancelEditRow = () => {
+    setEditingRowId(null);
+    setEditRowData(null);
   };
 
   // Logo & Signature Uploads
@@ -732,13 +757,106 @@ export const InvoiceDashboard: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredItems.map((item, index) => {
-                    const rowAmount = item.rate * item.qty;
+                    const isEditingRow = editingRowId === item.id;
                     const isEditingRate = editingRateId === item.id;
+                    const rowAmount = isEditingRow && editRowData
+                      ? editRowData.rate * editRowData.qty
+                      : item.rate * item.qty;
+
+                    if (isEditingRow && editRowData) {
+                      return (
+                        <tr key={item.id} className="border-b border-blue-400 bg-blue-50/80 transition-colors">
+                          <td className="w-8 py-1.5 px-1 text-center font-bold text-blue-700 border-r border-slate-800">{index + 1}</td>
+                          <td className="py-1 px-1.5 border-r border-slate-800">
+                            <input
+                              type="text"
+                              value={editRowData.name}
+                              onChange={(e) => setEditRowData({ ...editRowData, name: e.target.value })}
+                              placeholder="Product Name"
+                              className="w-full font-bold text-slate-900 bg-white border border-blue-500 rounded px-1.5 py-0.5 outline-none mb-1 text-[10.5px] shadow-xs"
+                            />
+                            <input
+                              type="text"
+                              value={editRowData.serial}
+                              onChange={(e) => setEditRowData({ ...editRowData, serial: e.target.value })}
+                              placeholder="Serial Numbers (S/N)"
+                              className="w-full font-mono text-slate-700 bg-white border border-blue-300 rounded px-1.5 py-0.5 outline-none text-[9.5px] shadow-xs"
+                            />
+                          </td>
+                          <td className="w-16 py-1 px-1 text-center border-r border-slate-800">
+                            <input
+                              type="text"
+                              value={editRowData.hsn}
+                              onChange={(e) => setEditRowData({ ...editRowData, hsn: e.target.value })}
+                              className="w-full text-center font-mono bg-white border border-blue-500 rounded px-1 py-0.5 outline-none text-[10px] shadow-xs"
+                            />
+                          </td>
+                          <td className="w-20 py-1 px-1 text-center border-r border-slate-800">
+                            <input
+                              type="number"
+                              min="1"
+                              value={editRowData.qty}
+                              onChange={(e) => setEditRowData({ ...editRowData, qty: Math.max(1, parseInt(e.target.value) || 1) })}
+                              className="w-full text-center font-bold bg-white border border-blue-500 rounded px-1 py-0.5 outline-none text-[10.5px] shadow-xs"
+                            />
+                          </td>
+                          <td className="w-11 py-1 px-1 text-center border-r border-slate-800">
+                            <select
+                              value={editRowData.unit}
+                              onChange={(e) => setEditRowData({ ...editRowData, unit: e.target.value })}
+                              className="w-full text-center font-medium bg-white border border-blue-500 rounded px-0.5 py-0.5 outline-none text-[10px] shadow-xs cursor-pointer"
+                            >
+                              <option value="NOS">NOS</option>
+                              <option value="PCS">PCS</option>
+                              <option value="ROLL">ROLL</option>
+                              <option value="PKT">PKT</option>
+                              <option value="MTR">MTR</option>
+                              <option value="SET">SET</option>
+                            </select>
+                          </td>
+                          <td className="w-24 py-1 px-1 text-right border-r border-slate-800">
+                            <input
+                              type="number"
+                              step="any"
+                              min="0"
+                              value={editRowData.rate}
+                              onChange={(e) => setEditRowData({ ...editRowData, rate: parseFloat(e.target.value) || 0 })}
+                              className="w-full text-right font-bold bg-white border border-blue-500 rounded px-1 py-0.5 outline-none text-[10.5px] shadow-xs"
+                            />
+                          </td>
+                          <td className="w-24 py-1.5 px-1 text-right font-bold border-r border-slate-800 text-brand-800">
+                            {formatINR(rowAmount)}
+                          </td>
+                          <td className="col-actions w-16 py-1.5 px-1 text-center no-print">
+                            <div className="flex items-center justify-center gap-1">
+                              <button
+                                onClick={handleSaveEditRow}
+                                title="Save Row Changes"
+                                className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow transition flex items-center justify-center"
+                              >
+                                <span className="material-icons text-[14px]">check</span>
+                              </button>
+                              <button
+                                onClick={handleCancelEditRow}
+                                title="Cancel Editing"
+                                className="p-1 bg-slate-400 hover:bg-slate-500 text-white rounded shadow transition flex items-center justify-center"
+                              >
+                                <span className="material-icons text-[14px]">close</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    }
 
                     return (
-                      <tr key={item.id} className="border-b border-slate-300 hover:bg-blue-50/50 transition-colors">
+                      <tr key={item.id} className="border-b border-slate-300 hover:bg-blue-50/50 transition-colors group">
                         <td className="w-8 py-1.5 px-1 text-center font-medium border-r border-slate-800">{index + 1}</td>
-                        <td className="py-1.5 px-2 border-r border-slate-800">
+                        <td
+                          className="py-1.5 px-2 border-r border-slate-800 cursor-pointer hover:bg-amber-50/60 transition-colors"
+                          onClick={() => handleStartEditRow(item)}
+                          title="Click to edit row"
+                        >
                           <span className="font-bold text-slate-900 block leading-tight">{item.name}</span>
                           {item.serial ? (
                             <span className="text-[9px] font-mono text-slate-600 block mt-0.5 leading-tight break-all">
@@ -746,7 +864,13 @@ export const InvoiceDashboard: React.FC = () => {
                             </span>
                           ) : null}
                         </td>
-                        <td className="w-16 py-1.5 px-1 text-center font-mono text-[10px] border-r border-slate-800">{item.hsn}</td>
+                        <td
+                          className="w-16 py-1.5 px-1 text-center font-mono text-[10px] border-r border-slate-800 cursor-pointer hover:bg-amber-50/60 transition-colors"
+                          onClick={() => handleStartEditRow(item)}
+                          title="Click to edit HSN"
+                        >
+                          {item.hsn}
+                        </td>
                         <td className="w-20 py-1.5 px-1 text-center border-r border-slate-800">
                           <div className="inline-flex items-center border border-slate-400 rounded bg-white overflow-hidden shadow-xs">
                             <button
@@ -764,7 +888,13 @@ export const InvoiceDashboard: React.FC = () => {
                             </button>
                           </div>
                         </td>
-                        <td className="w-11 py-1.5 px-1 text-center font-medium border-r border-slate-800">{item.unit}</td>
+                        <td
+                          className="w-11 py-1.5 px-1 text-center font-medium border-r border-slate-800 cursor-pointer hover:bg-amber-50/60 transition-colors"
+                          onClick={() => handleStartEditRow(item)}
+                          title="Click to edit unit"
+                        >
+                          {item.unit}
+                        </td>
                         <td className="w-24 py-1.5 px-1 text-right border-r border-slate-800">
                           {isEditingRate ? (
                             <input
@@ -793,6 +923,13 @@ export const InvoiceDashboard: React.FC = () => {
                         <td className="w-24 py-1.5 px-1 text-right font-bold border-r border-slate-800">{formatINR(rowAmount)}</td>
                         <td className="col-actions w-16 py-1.5 px-1 text-center no-print">
                           <div className="flex items-center justify-center gap-0.5">
+                            <button
+                              className="p-0.5 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition"
+                              title="Edit Row"
+                              onClick={() => handleStartEditRow(item)}
+                            >
+                              <span className="material-icons text-[14px]">edit</span>
+                            </button>
                             <button
                               className="p-0.5 text-slate-500 hover:text-brand-800 hover:bg-slate-200 rounded transition"
                               title="Move Up"
