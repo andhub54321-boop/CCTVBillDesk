@@ -29,6 +29,9 @@ export interface InvoiceData {
   customer: InvoiceCustomer;
   items: InvoiceItem[];
   totals: InvoiceTotals;
+  invoiceMode?: 'RETAIL' | 'B2B';
+  gstinBuyer?: string;
+  gstinSeller?: string;
   gstStatus?: string;
   companyMobile?: string;
   companyEmail?: string;

@@ -61,6 +61,11 @@ export const InvoiceDashboard: React.FC = () => {
   const [companyAddress, setCompanyAddress] = useState('Borghuli, Kaliabor, Nagaon, Assam-782120');
   const [companySubHeader, setCompanySubHeader] = useState('CCTV Surveillance Systems & Security Solutions');
 
+  // Billing Mode Selection (Retail vs B2B)
+  const [invoiceMode, setInvoiceMode] = useState<'RETAIL' | 'B2B'>('RETAIL');
+  const [gstinBuyer, setGstinBuyer] = useState('18AAAAA0000A1Z5');
+  const [gstinSeller, setGstinSeller] = useState('18XXXXX0000X1Z1');
+
   // Assets & Saved Data
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [signUrl, setSignUrl] = useState<string | null>(null);
@@ -334,6 +339,9 @@ export const InvoiceDashboard: React.FC = () => {
       customer,
       items,
       totals,
+      invoiceMode,
+      gstinBuyer,
+      gstinSeller,
       gstStatus,
       companyMobile,
       companyEmail,
@@ -357,6 +365,9 @@ export const InvoiceDashboard: React.FC = () => {
       setCustomer(inv.customer);
     }
     setItems(inv.items ? [...inv.items] : []);
+    if (inv.invoiceMode) setInvoiceMode(inv.invoiceMode);
+    if (inv.gstinBuyer) setGstinBuyer(inv.gstinBuyer);
+    if (inv.gstinSeller) setGstinSeller(inv.gstinSeller);
     if (inv.gstStatus) setGstStatus(inv.gstStatus);
     if (inv.companyMobile) setCompanyMobile(inv.companyMobile);
     if (inv.companyEmail) setCompanyEmail(inv.companyEmail);
@@ -464,6 +475,51 @@ export const InvoiceDashboard: React.FC = () => {
             >
               <span className="material-icons text-sm">post_add</span> New
             </button>
+          </div>
+
+          {/* Billing Mode Selection Card */}
+          <div className="glass-card rounded-2xl p-3.5 shadow-md border border-white/50 flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="material-icons text-sm text-brand-800">tune</span> Billing Mode
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-100 text-brand-800 border border-brand-200">
+                {invoiceMode === 'RETAIL' ? 'Retail Invoice' : 'B2B Tax Invoice'}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+              <button
+                type="button"
+                onClick={() => {
+                  setInvoiceMode('RETAIL');
+                  showToast('Switched to Retail Mode');
+                }}
+                className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs ${
+                  invoiceMode === 'RETAIL'
+                    ? 'bg-gradient-to-r from-brand-900 to-brand-800 text-white shadow-md scale-[1.02]'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                <span className="material-icons text-sm">{invoiceMode === 'RETAIL' ? 'check_circle' : 'shopping_bag'}</span>
+                Retail Mode
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setInvoiceMode('B2B');
+                  showToast('Switched to B2B Mode');
+                }}
+                className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs ${
+                  invoiceMode === 'B2B'
+                    ? 'bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md scale-[1.02]'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                <span className="material-icons text-sm">{invoiceMode === 'B2B' ? 'check_circle' : 'business'}</span>
+                B2B Mode
+              </button>
+            </div>
           </div>
 
           {/* Real-Time Interactive KPI Cards */}
@@ -696,8 +752,10 @@ export const InvoiceDashboard: React.FC = () => {
             </header>
 
             {/* Banner */}
-            <div className="invoice-banner bg-brand-800 text-white text-center text-xs font-bold tracking-widest py-1 border-x-[1.5px] border-slate-800">
-              RETAIL TAX INVOICE
+            <div className={`invoice-banner text-white text-center text-xs font-bold tracking-widest py-1 border-x-[1.5px] border-slate-800 transition-colors ${
+              invoiceMode === 'RETAIL' ? 'bg-brand-800' : 'bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900'
+            }`}>
+              {invoiceMode === 'RETAIL' ? 'RETAIL TAX INVOICE' : 'TAX INVOICE (B2B)'}
             </div>
 
             {/* Customer & Bill Info Grid */}
@@ -713,6 +771,18 @@ export const InvoiceDashboard: React.FC = () => {
                     className="editable-field font-bold text-slate-900 flex-1 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 transition"
                   />
                 </div>
+                {invoiceMode === 'B2B' && (
+                  <div className="flex items-center text-emerald-900 font-bold bg-emerald-50/80 p-0.5 rounded border border-emerald-300">
+                    <span className="w-24 font-semibold text-emerald-950">Buyer GSTIN:</span>
+                    <input
+                      type="text"
+                      value={gstinBuyer}
+                      onChange={(e) => setGstinBuyer(e.target.value)}
+                      placeholder="e.g. 18AAAAA0000A1Z5"
+                      className="editable-field font-mono font-bold text-emerald-950 flex-1 hover:bg-white focus:bg-white px-1 py-0.5 rounded outline-none border border-transparent focus:border-emerald-500 transition"
+                    />
+                  </div>
+                )}
                 <div className="flex items-center">
                   <span className="w-24 font-semibold text-slate-700">Address:</span>
                   <input
@@ -753,6 +823,18 @@ export const InvoiceDashboard: React.FC = () => {
                     className="editable-field font-bold text-slate-900 flex-1 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 transition"
                   />
                 </div>
+                {invoiceMode === 'B2B' && (
+                  <div className="flex items-center text-emerald-900 font-bold bg-emerald-50/80 p-0.5 rounded border border-emerald-300">
+                    <span className="w-28 font-semibold text-emerald-950">Seller GSTIN:</span>
+                    <input
+                      type="text"
+                      value={gstinSeller}
+                      onChange={(e) => setGstinSeller(e.target.value)}
+                      placeholder="e.g. 18XXXXX0000X1Z1"
+                      className="editable-field font-mono font-bold text-emerald-950 flex-1 hover:bg-white focus:bg-white px-1 py-0.5 rounded outline-none border border-transparent focus:border-emerald-500 transition"
+                    />
+                  </div>
+                )}
                 <div className="flex items-center">
                   <span className="w-28 font-semibold text-slate-700">Invoice Date:</span>
                   <input
