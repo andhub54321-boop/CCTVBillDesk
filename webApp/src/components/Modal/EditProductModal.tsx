@@ -28,7 +28,6 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
 
   const isWholesale = invoiceMode === 'WHOLESALE' || (invoiceMode as string) === 'B2B';
   const marginPct = isWholesale ? 1.10 : 1.30;
-  const pctLabel = isWholesale ? '+10%' : '+30%';
 
   useEffect(() => {
     if (item) {
@@ -269,7 +268,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
             <div>
               <label className="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1">
                 <span className="material-icons text-sm text-emerald-700">payments</span>
-                Rate ({pctLabel})
+                Rate (₹)
               </label>
               <input
                 type="number"

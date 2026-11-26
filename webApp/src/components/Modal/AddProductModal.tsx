@@ -28,7 +28,6 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
   const isWholesale = invoiceMode === 'WHOLESALE' || (invoiceMode as string) === 'B2B';
   const marginPct = isWholesale ? 1.10 : 1.30;
-  const pctLabel = isWholesale ? '+10%' : '+30%';
 
   const handleBaseRateChange = (val: string) => {
     if (val === '') {
@@ -196,7 +195,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
           <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Rate ({pctLabel})</label>
+              <label className="block font-semibold text-slate-700 mb-1">Rate (₹)</label>
               <input
                 type="number"
                 required

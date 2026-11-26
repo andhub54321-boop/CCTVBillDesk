@@ -515,7 +515,7 @@ export const InvoiceDashboard: React.FC = () => {
                 }`}
               >
                 <span className="material-icons text-sm">{invoiceMode === 'RETAIL' ? 'check_circle' : 'shopping_bag'}</span>
-                Retail Mode (+30%)
+                Retail Mode
               </button>
 
               <button
@@ -528,7 +528,7 @@ export const InvoiceDashboard: React.FC = () => {
                 }`}
               >
                 <span className="material-icons text-sm">{invoiceMode === 'WHOLESALE' || invoiceMode === 'B2B' ? 'check_circle' : 'storefront'}</span>
-                Wholesale Mode (+10%)
+                Wholesale Mode
               </button>
             </div>
           </div>
