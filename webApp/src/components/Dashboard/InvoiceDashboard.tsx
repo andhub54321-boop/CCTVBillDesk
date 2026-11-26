@@ -725,39 +725,37 @@ export const InvoiceDashboard: React.FC = () => {
                 )}
               </div>
 
-              {/* Center Company Header (Editable) */}
-              <div className="flex-1 text-center pr-12">
-                <h1 className="brand-title text-[26px] font-extrabold text-brand-800 uppercase leading-tight drop-shadow-sm">
+              {/* Center Company Header (Static & Non-editable for Name, Tagline, Address) */}
+              <div className="flex-1 text-center pr-6">
+                <h1 className="brand-title text-[25px] font-extrabold text-brand-900 uppercase tracking-wide leading-tight drop-shadow-xs">
                   XONDHAN ELECTRONICS
                 </h1>
-                <input
-                  type="text"
-                  value={companySubHeader}
-                  onChange={(e) => setCompanySubHeader(e.target.value)}
-                  className="editable-field text-[11.5px] font-semibold text-slate-800 mt-0.5 text-center w-full outline-none hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded border border-transparent focus:border-blue-500 transition"
-                />
-                <input
-                  type="text"
-                  value={companyAddress}
-                  onChange={(e) => setCompanyAddress(e.target.value)}
-                  className="editable-field text-[10.5px] text-slate-600 text-center w-full outline-none hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded border border-transparent focus:border-blue-500 transition"
-                />
-                <div className="flex items-center justify-center gap-1 text-[10.5px] text-slate-600 mt-0.5">
-                  <span className="font-semibold text-slate-700">Mobile:</span>
-                  <input
-                    type="text"
-                    value={companyMobile}
-                    onChange={(e) => setCompanyMobile(e.target.value)}
-                    className="editable-field text-slate-900 outline-none hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded border border-transparent focus:border-blue-500 transition font-medium text-center"
-                  />
-                  <span className="mx-1 text-slate-400">|</span>
-                  <span className="font-semibold text-slate-700">Email:</span>
-                  <input
-                    type="text"
-                    value={companyEmail}
-                    onChange={(e) => setCompanyEmail(e.target.value)}
-                    className="editable-field text-slate-900 outline-none hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded border border-transparent focus:border-blue-500 transition font-medium text-center"
-                  />
+                <p className="text-[11.5px] font-bold text-slate-800 tracking-tight mt-0.5 leading-snug">
+                  CCTV Surveillance Systems & Security Solutions
+                </p>
+                <p className="text-[10.5px] font-semibold text-slate-700 mt-0.5 leading-tight">
+                  Borghuli, Kaliabor, Nagaon, Assam-782120
+                </p>
+                <div className="flex items-center justify-center gap-3 text-[10.5px] text-slate-700 mt-1">
+                  <div className="flex items-center gap-1">
+                    <span className="font-bold text-slate-800">Mobile:</span>
+                    <input
+                      type="text"
+                      value={companyMobile}
+                      onChange={(e) => setCompanyMobile(e.target.value)}
+                      className="editable-field font-semibold text-slate-900 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 transition text-center w-36 text-[10.5px]"
+                    />
+                  </div>
+                  <span className="text-slate-400 font-bold">•</span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-bold text-slate-800">Email:</span>
+                    <input
+                      type="text"
+                      value={companyEmail}
+                      onChange={(e) => setCompanyEmail(e.target.value)}
+                      className="editable-field font-semibold text-slate-900 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 transition text-center w-56 text-[10.5px]"
+                    />
+                  </div>
                 </div>
               </div>
             </header>
@@ -766,7 +764,7 @@ export const InvoiceDashboard: React.FC = () => {
             <div className={`invoice-banner text-white text-center text-xs font-bold tracking-widest py-1 border-x-[1.5px] border-slate-800 transition-colors ${
               invoiceMode === 'RETAIL' ? 'bg-brand-800' : 'bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900'
             }`}>
-              {invoiceMode === 'RETAIL' ? 'RETAIL TAX INVOICE' : 'TAX INVOICE (B2B)'}
+              {invoiceMode === 'RETAIL' ? 'RETAIL TAX INVOICE' : 'WHOLESALE TAX INVOICE'}
             </div>
 
             {/* Customer & Bill Info Grid */}
