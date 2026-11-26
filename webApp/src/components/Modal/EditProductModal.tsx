@@ -50,12 +50,12 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   if (!isOpen || !item) return null;
 
   const currentBaseRate = typeof baseRate === 'number' ? baseRate : Math.round((typeof rate === 'number' ? rate : 0) / marginPct);
-  const minWholesaleRate = currentBaseRate * 1.10; // Wholesale minimum rate = Base Rate + 10%
+  const minWholesaleRate = Math.round((currentBaseRate * 1.10) * 100) / 100; // Wholesale minimum rate = Base Rate + 10%
   const currentRateNum = typeof rate === 'number' ? rate : 0;
   const currentMrpNum = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
 
   const isExceedingMrp = currentMrpNum > 0 && currentRateNum > currentMrpNum;
-  const isRateBelowMin = isWholesale && currentRateNum < minWholesaleRate;
+  const isRateBelowMin = isWholesale && currentRateNum < (minWholesaleRate - 0.001);
   const isRateInvalid = isRateBelowMin || isExceedingMrp;
 
   const handleBaseRateChange = (val: string) => {
@@ -68,10 +68,11 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setBaseRate(num);
       const autoRate = Math.round(num * marginPct);
       setRate(autoRate);
+      const minVal = Math.round((num * 1.10) * 100) / 100;
       if (currentMrpNum > 0 && autoRate > currentMrpNum) {
         setErrorMsg(`Selling Rate (₹${autoRate}) exceeds MRP (₹${currentMrpNum})`);
-      } else if (isWholesale && autoRate < num * 1.10) {
-        setErrorMsg(`In Wholesale Mode, Rate cannot be set below Base Rate + 10% (Min ₹${(num * 1.10).toFixed(2)})`);
+      } else if (isWholesale && autoRate < (minVal - 0.001)) {
+        setErrorMsg(`In Wholesale Mode, Rate cannot be set below Base Rate + 10% (Min ₹${minVal.toFixed(2)})`);
       } else {
         setErrorMsg(null);
       }
@@ -89,7 +90,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setRate(num);
       if (currentMrpNum > 0 && num > currentMrpNum) {
         setErrorMsg(`MRP Limit: Selling Rate (₹${num}) cannot exceed MRP (₹${currentMrpNum})`);
-      } else if (isWholesale && num < minWholesaleRate) {
+      } else if (isWholesale && num < (minWholesaleRate - 0.001)) {
         setErrorMsg(`Wholesale Guard: Rate (₹${num}) cannot be below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
       } else {
         setErrorMsg(null);
