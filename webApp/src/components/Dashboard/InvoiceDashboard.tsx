@@ -17,6 +17,7 @@ import { EditProductModal } from '../Modal/EditProductModal';
 import { MaterialDialog, DialogOptions } from '../Dialog/MaterialDialog';
 import { ToastContainer, ToastMessage } from '../Toast/ToastContainer';
 import { InstallPrompt } from '../InstallPrompt/InstallPrompt';
+import defaultLogo from '../../assets/logo.png';
 
 const DEFAULT_SEED_ITEMS: InvoiceItem[] = [
   { id: 1, name: "DVR 8 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 2, unit: "NOS", rate: 4500.00, baseRate: 4090.91, mrp: 5800.00 },
@@ -68,7 +69,7 @@ export const InvoiceDashboard: React.FC = () => {
   const [gstinSeller, setGstinSeller] = useState('18XXXXX0000X1Z1');
 
   // Assets & Saved Data
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(defaultLogo);
   const [signUrl, setSignUrl] = useState<string | null>(null);
   const [savedBills, setSavedBills] = useState<InvoiceData[]>([]);
 
@@ -127,7 +128,7 @@ export const InvoiceDashboard: React.FC = () => {
       setSavedBills(storedInvoices);
 
       const logo = await getAsset('logo');
-      if (logo) setLogoUrl(logo);
+      setLogoUrl(logo || defaultLogo);
 
       const sign = await getAsset('signature');
       if (sign) setSignUrl(sign);
@@ -283,8 +284,8 @@ export const InvoiceDashboard: React.FC = () => {
     });
     if (confirmed) {
       await deleteAsset('logo');
-      setLogoUrl(null);
-      showToast('Logo removed');
+      setLogoUrl(defaultLogo);
+      showToast('Logo reset to default');
     }
   };
 
