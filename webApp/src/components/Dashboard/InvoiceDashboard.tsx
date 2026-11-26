@@ -13,6 +13,7 @@ import {
 } from '../../services/idbStorage';
 import { formatINR, numberToWords } from '../../utils/numberToWords';
 import { AddProductModal } from '../Modal/AddProductModal';
+import { EditProductModal } from '../Modal/EditProductModal';
 import { MaterialDialog, DialogOptions } from '../Dialog/MaterialDialog';
 import { ToastContainer, ToastMessage } from '../Toast/ToastContainer';
 import { InstallPrompt } from '../InstallPrompt/InstallPrompt';
@@ -61,8 +62,8 @@ export const InvoiceDashboard: React.FC = () => {
   const [companyAddress, setCompanyAddress] = useState('Borghuli, Kaliabor, Nagaon, Assam-782120');
   const [companySubHeader, setCompanySubHeader] = useState('CCTV Surveillance Systems & Security Solutions');
 
-  // Billing Mode Selection (Retail vs B2B)
-  const [invoiceMode, setInvoiceMode] = useState<'RETAIL' | 'B2B'>('RETAIL');
+  // Billing Mode Selection (Retail vs Wholesale)
+  const [invoiceMode, setInvoiceMode] = useState<'RETAIL' | 'WHOLESALE' | 'B2B'>('RETAIL');
   const [gstinBuyer, setGstinBuyer] = useState('18AAAAA0000A1Z5');
   const [gstinSeller, setGstinSeller] = useState('18XXXXX0000X1Z1');
 
@@ -73,14 +74,8 @@ export const InvoiceDashboard: React.FC = () => {
 
   // UI Interactive States
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingRateId, setEditingRateId] = useState<number | null>(null);
-  const [tempRate, setTempRate] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [, setCanInstall] = useState(false);
-
-  // Full Row Editing States
-  const [editingRowId, setEditingRowId] = useState<number | null>(null);
-  const [editRowData, setEditRowData] = useState<InvoiceItem | null>(null);
 
   // Material Dialog System State
   const [dialogState, setDialogState] = useState<{
@@ -193,87 +188,27 @@ export const InvoiceDashboard: React.FC = () => {
     }
   };
 
-  const handleStartRateEdit = (id: number, currentRate: number) => {
-    setEditingRateId(id);
-    setTempRate(String(currentRate));
-  };
-
-  const handleSaveRate = async (id: number) => {
-    const parsed = parseFloat(tempRate);
-    const validRate = isNaN(parsed) || parsed < 0 ? 0 : parsed;
-    const targetItem = items.find((i) => i.id === id);
-
-    if (targetItem) {
-      const baseRate = targetItem.baseRate || Math.round(targetItem.rate / 1.10);
-      const minAllowed = baseRate * 0.90; // 10% lower than Base Rate
-
-      if (invoiceMode === 'B2B' && validRate < minAllowed) {
-        setEditingRateId(null);
-        await confirmDialog({
-          title: 'Rate Below B2B Minimum Limit!',
-          message: `In B2B Mode, Rate cannot be reduced below 10% lower than Base Rate (Minimum allowed: ₹${minAllowed.toFixed(2)} for Base Rate ₹${baseRate}). Changes rejected.`,
-          icon: 'warning',
-          confirmText: 'OK',
-          cancelText: '',
-          isDanger: true
-        });
-        return;
-      }
-    }
-
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, rate: validRate } : i)));
-    setEditingRateId(null);
-  };
-
   const handleAddItem = (newItem: Omit<InvoiceItem, 'id'>) => {
     setItems((prev) => [...prev, { ...newItem, id: Date.now() }]);
     showToast('Product added to invoice');
   };
 
-  // Full Row Editing Handlers
+  // Material Edit Product Modal State & Handlers
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<InvoiceItem | null>(null);
+
   const handleStartEditRow = (item: InvoiceItem) => {
-    setEditingRowId(item.id);
-    const baseRateVal = item.baseRate || Math.round(item.rate / 1.10);
-    setEditRowData({ ...item, baseRate: baseRateVal });
+    setItemToEdit(item);
+    setIsEditModalOpen(true);
   };
 
-  const handleSaveEditRow = async () => {
-    if (!editRowData) return;
-
-    const baseRateVal = typeof editRowData.baseRate === 'number' && editRowData.baseRate > 0
-      ? editRowData.baseRate
-      : Math.round(editRowData.rate / 1.10);
-
-    const minAllowed = baseRateVal * 0.90;
-
-    if (invoiceMode === 'B2B' && editRowData.rate < minAllowed) {
-      await confirmDialog({
-        title: 'Rate Below B2B Minimum Limit!',
-        message: `In B2B Mode, Rate (₹${editRowData.rate}) cannot be set lower than 10% of Base Rate (Minimum allowed: ₹${minAllowed.toFixed(2)} for Base Rate ₹${baseRateVal}). Changes rejected.`,
-        icon: 'warning',
-        confirmText: 'OK',
-        cancelText: '',
-        isDanger: true
-      });
-      return;
-    }
-
-    const updatedItem: InvoiceItem = {
-      ...editRowData,
-      baseRate: baseRateVal
-    };
-
+  const handleSaveEditModal = (updatedItem: InvoiceItem) => {
     setItems((prev) =>
       prev.map((i) => (i.id === updatedItem.id ? updatedItem : i))
     );
-    setEditingRowId(null);
-    setEditRowData(null);
-    showToast('Row updated successfully');
-  };
-
-  const handleCancelEditRow = () => {
-    setEditingRowId(null);
-    setEditRowData(null);
+    setItemToEdit(null);
+    setIsEditModalOpen(false);
+    showToast('Line item updated successfully');
   };
 
   // Logo & Signature Uploads
@@ -410,7 +345,9 @@ export const InvoiceDashboard: React.FC = () => {
       setCustomer(inv.customer);
     }
     setItems(inv.items ? [...inv.items] : []);
-    if (inv.invoiceMode) setInvoiceMode(inv.invoiceMode);
+    if (inv.invoiceMode) {
+      setInvoiceMode(inv.invoiceMode === 'B2B' ? 'WHOLESALE' : inv.invoiceMode);
+    }
     if (inv.gstinBuyer) setGstinBuyer(inv.gstinBuyer);
     if (inv.gstinSeller) setGstinSeller(inv.gstinSeller);
     if (inv.gstStatus) setGstStatus(inv.gstStatus);
@@ -529,7 +466,7 @@ export const InvoiceDashboard: React.FC = () => {
                 <span className="material-icons text-sm text-brand-800">tune</span> Billing Mode
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-100 text-brand-800 border border-brand-200">
-                {invoiceMode === 'RETAIL' ? 'Retail Invoice' : 'B2B Tax Invoice'}
+                {invoiceMode === 'RETAIL' ? 'Retail Invoice' : 'Wholesale Invoice'}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
@@ -552,17 +489,17 @@ export const InvoiceDashboard: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setInvoiceMode('B2B');
-                  showToast('Switched to B2B Mode');
+                  setInvoiceMode('WHOLESALE');
+                  showToast('Switched to Wholesale Mode');
                 }}
                 className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs ${
-                  invoiceMode === 'B2B'
+                  invoiceMode === 'WHOLESALE' || invoiceMode === 'B2B'
                     ? 'bg-gradient-to-r from-emerald-700 to-teal-600 text-white shadow-md scale-[1.02]'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
-                <span className="material-icons text-sm">{invoiceMode === 'B2B' ? 'check_circle' : 'business'}</span>
-                B2B Mode
+                <span className="material-icons text-sm">{invoiceMode === 'WHOLESALE' || invoiceMode === 'B2B' ? 'check_circle' : 'storefront'}</span>
+                Wholesale Mode
               </button>
             </div>
           </div>
@@ -928,114 +865,7 @@ export const InvoiceDashboard: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredItems.map((item, index) => {
-                    const isEditingRow = editingRowId === item.id;
-                    const isEditingRate = editingRateId === item.id;
-                    const rowAmount = isEditingRow && editRowData
-                      ? editRowData.rate * editRowData.qty
-                      : item.rate * item.qty;
-
-                    if (isEditingRow && editRowData) {
-                      return (
-                        <tr key={item.id} className="border-b border-blue-400 bg-blue-50/80 transition-colors">
-                          <td className="w-8 py-1.5 px-1 text-center font-bold text-blue-700 border-r border-slate-800">{index + 1}</td>
-                          <td className="py-1 px-1.5 border-r border-slate-800">
-                            <input
-                              type="text"
-                              value={editRowData.name}
-                              onChange={(e) => setEditRowData({ ...editRowData, name: e.target.value })}
-                              placeholder="Product Name"
-                              className="w-full font-bold text-slate-900 bg-white border border-blue-500 rounded px-1.5 py-0.5 outline-none mb-1 text-[10.5px] shadow-xs"
-                            />
-                            <input
-                              type="text"
-                              value={editRowData.serial}
-                              onChange={(e) => setEditRowData({ ...editRowData, serial: e.target.value })}
-                              placeholder="Serial Numbers (S/N)"
-                              className="w-full font-mono text-slate-700 bg-white border border-blue-300 rounded px-1.5 py-0.5 outline-none text-[9.5px] shadow-xs"
-                            />
-                          </td>
-                          <td className="w-16 py-1 px-1 text-center border-r border-slate-800">
-                            <input
-                              type="text"
-                              value={editRowData.hsn}
-                              onChange={(e) => setEditRowData({ ...editRowData, hsn: e.target.value })}
-                              className="w-full text-center font-mono bg-white border border-blue-500 rounded px-1 py-0.5 outline-none text-[10px] shadow-xs"
-                            />
-                          </td>
-                          <td className="w-20 py-1 px-1 text-center border-r border-slate-800">
-                            <input
-                              type="number"
-                              min="1"
-                              value={editRowData.qty}
-                              onChange={(e) => setEditRowData({ ...editRowData, qty: Math.max(1, parseInt(e.target.value) || 1) })}
-                              className="w-full text-center font-bold bg-white border border-blue-500 rounded px-1 py-0.5 outline-none text-[10.5px] shadow-xs"
-                            />
-                          </td>
-                          <td className="w-11 py-1 px-1 text-center border-r border-slate-800">
-                            <select
-                              value={editRowData.unit}
-                              onChange={(e) => setEditRowData({ ...editRowData, unit: e.target.value })}
-                              className="w-full text-center font-medium bg-white border border-blue-500 rounded px-0.5 py-0.5 outline-none text-[10px] shadow-xs cursor-pointer"
-                            >
-                              <option value="NOS">NOS</option>
-                              <option value="PCS">PCS</option>
-                              <option value="ROLL">ROLL</option>
-                              <option value="PKT">PKT</option>
-                              <option value="MTR">MTR</option>
-                              <option value="SET">SET</option>
-                            </select>
-                          </td>
-                          <td className="w-20 py-1 px-1 text-right border-r border-slate-800 no-print">
-                            <input
-                              type="number"
-                              step="any"
-                              min="0"
-                              value={editRowData.baseRate ?? Math.round(editRowData.rate / 1.10)}
-                              onChange={(e) => {
-                                const newBase = parseFloat(e.target.value) || 0;
-                                setEditRowData({
-                                  ...editRowData,
-                                  baseRate: newBase,
-                                  rate: Math.round(newBase * 1.10)
-                                });
-                              }}
-                              className="w-full text-right font-semibold text-slate-700 bg-white border border-blue-500 rounded px-1 py-0.5 outline-none text-[10px] shadow-xs"
-                            />
-                          </td>
-                          <td className="w-24 py-1 px-1 text-right border-r border-slate-800">
-                            <input
-                              type="number"
-                              step="any"
-                              min="0"
-                              value={editRowData.rate}
-                              onChange={(e) => setEditRowData({ ...editRowData, rate: parseFloat(e.target.value) || 0 })}
-                              className="w-full text-right font-bold bg-white border border-blue-500 rounded px-1 py-0.5 outline-none text-[10.5px] shadow-xs"
-                            />
-                          </td>
-                          <td className="w-24 py-1.5 px-1 text-right font-bold border-r border-slate-800 text-brand-800">
-                            {formatINR(rowAmount)}
-                          </td>
-                          <td className="col-actions w-16 py-1.5 px-1 text-center no-print">
-                            <div className="flex items-center justify-center gap-1">
-                              <button
-                                onClick={handleSaveEditRow}
-                                title="Save Row Changes"
-                                className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow transition flex items-center justify-center"
-                              >
-                                <span className="material-icons text-[14px]">check</span>
-                              </button>
-                              <button
-                                onClick={handleCancelEditRow}
-                                title="Cancel Editing"
-                                className="p-1 bg-slate-400 hover:bg-slate-500 text-white rounded shadow transition flex items-center justify-center"
-                              >
-                                <span className="material-icons text-[14px]">close</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    }
+                    const rowAmount = item.rate * item.qty;
 
                     return (
                       <tr key={item.id} className="border-b border-slate-300 hover:bg-blue-50/50 transition-colors group">
@@ -1043,7 +873,7 @@ export const InvoiceDashboard: React.FC = () => {
                         <td
                           className="py-1.5 px-2 border-r border-slate-800 cursor-pointer hover:bg-amber-50/60 transition-colors"
                           onClick={() => handleStartEditRow(item)}
-                          title="Click to edit row"
+                          title="Click to edit line item"
                         >
                           <span className="font-bold text-slate-900 block leading-tight">{item.name}</span>
                           {item.serial ? (
@@ -1086,41 +916,27 @@ export const InvoiceDashboard: React.FC = () => {
                         <td
                           className="w-20 py-1.5 px-1 text-right font-mono text-slate-600 border-r border-slate-800 no-print cursor-pointer hover:bg-amber-50/60 transition-colors"
                           onClick={() => handleStartEditRow(item)}
-                          title="Click to edit Base Rate (Rate auto-sets +10%)"
+                          title="Click to edit Base Rate (Rate auto-calculates +10%)"
                         >
                           {formatINR(item.baseRate ?? Math.round(item.rate / 1.10))}
                         </td>
-                        <td className="w-24 py-1.5 px-1 text-right border-r border-slate-800">
-                          {isEditingRate ? (
-                            <input
-                              type="number"
-                              autoFocus
-                              step="any"
-                              min="0"
-                              value={tempRate}
-                              onChange={(e) => setTempRate(e.target.value)}
-                              onBlur={() => handleSaveRate(item.id)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleSaveRate(item.id);
-                              }}
-                              className="w-20 text-right text-[10.5px] font-bold bg-white border border-blue-500 rounded px-1 py-0.5 outline-none shadow-sm"
-                            />
-                          ) : (
-                            <span
-                              onClick={() => handleStartRateEdit(item.id, item.rate)}
-                              className="rate-display cursor-pointer hover:bg-amber-100/70 px-1 py-0.5 rounded border border-transparent hover:border-amber-400 transition"
-                              title="Click to edit rate"
-                            >
-                              {formatINR(item.rate)}
-                            </span>
-                          )}
+                        <td
+                          className="w-24 py-1.5 px-1 text-right border-r border-slate-800 cursor-pointer hover:bg-amber-50/60 transition-colors"
+                          onClick={() => handleStartEditRow(item)}
+                          title="Click to edit rate"
+                        >
+                          <span className="rate-display font-bold text-slate-900">
+                            {formatINR(item.rate)}
+                          </span>
                         </td>
-                        <td className="w-24 py-1.5 px-1 text-right font-bold border-r border-slate-800">{formatINR(rowAmount)}</td>
+                        <td className="w-24 py-1.5 px-1 text-right font-bold border-r border-slate-800 text-slate-900">
+                          {formatINR(rowAmount)}
+                        </td>
                         <td className="col-actions w-16 py-1.5 px-1 text-center no-print">
                           <div className="flex items-center justify-center gap-0.5">
                             <button
                               className="p-0.5 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition"
-                              title="Edit Row"
+                              title="Edit Line Item"
                               onClick={() => handleStartEditRow(item)}
                             >
                               <span className="material-icons text-[14px]">edit</span>
@@ -1271,6 +1087,18 @@ export const InvoiceDashboard: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddItem}
+      />
+
+      {/* Material Edit Line Item Modal */}
+      <EditProductModal
+        isOpen={isEditModalOpen}
+        item={itemToEdit}
+        invoiceMode={invoiceMode}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setItemToEdit(null);
+        }}
+        onSave={handleSaveEditModal}
       />
 
       {/* Material Dialog System */}
