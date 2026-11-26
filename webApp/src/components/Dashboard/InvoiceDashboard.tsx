@@ -736,26 +736,24 @@ export const InvoiceDashboard: React.FC = () => {
                 <p className="text-[10.5px] font-semibold text-slate-700 mt-0.5 leading-tight">
                   Borghuli, Kaliabor, Nagaon, Assam-782120
                 </p>
-                <div className="flex items-center justify-center gap-3 text-[10.5px] text-slate-700 mt-1">
-                  <div className="flex items-center gap-1">
-                    <span className="font-bold text-slate-800">Mobile:</span>
-                    <input
-                      type="text"
-                      value={companyMobile}
-                      onChange={(e) => setCompanyMobile(e.target.value)}
-                      className="editable-field font-semibold text-slate-900 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 transition text-center w-36 text-[10.5px]"
-                    />
-                  </div>
-                  <span className="text-slate-400 font-bold">•</span>
-                  <div className="flex items-center gap-1">
-                    <span className="font-bold text-slate-800">Email:</span>
-                    <input
-                      type="text"
-                      value={companyEmail}
-                      onChange={(e) => setCompanyEmail(e.target.value)}
-                      className="editable-field font-semibold text-slate-900 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 transition text-center w-56 text-[10.5px]"
-                    />
-                  </div>
+                <div className="flex items-center justify-center gap-1 text-[10.5px] text-slate-800 mt-0.5 font-semibold">
+                  <span className="font-bold">Mobile:</span>
+                  <input
+                    type="text"
+                    value={companyMobile}
+                    onChange={(e) => setCompanyMobile(e.target.value)}
+                    className="editable-field font-semibold text-slate-900 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 transition text-left"
+                    style={{ width: `${Math.max(companyMobile.length * 7 + 10, 110)}px` }}
+                  />
+                  <span className="text-slate-400 font-normal px-0.5">|</span>
+                  <span className="font-bold">Email:</span>
+                  <input
+                    type="text"
+                    value={companyEmail}
+                    onChange={(e) => setCompanyEmail(e.target.value)}
+                    className="editable-field font-semibold text-slate-900 hover:bg-slate-100 focus:bg-blue-50 px-1 py-0.5 rounded outline-none border border-transparent focus:border-blue-500 transition text-left"
+                    style={{ width: `${Math.max(companyEmail.length * 6.5 + 10, 190)}px` }}
+                  />
                 </div>
               </div>
             </header>
