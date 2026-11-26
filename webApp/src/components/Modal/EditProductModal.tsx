@@ -22,6 +22,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [unit, setUnit] = useState('NOS');
   const [baseRate, setBaseRate] = useState<number | ''>('');
   const [rate, setRate] = useState<number | ''>('');
+  const [mrp, setMrp] = useState<number | ''>('');
   const [qty, setQty] = useState<number>(1);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -40,6 +41,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
         : Math.round(item.rate / marginPct);
       setBaseRate(bRate);
       setRate(item.rate);
+      setMrp(typeof item.mrp === 'number' && item.mrp > 0 ? item.mrp : '');
       setQty(item.qty || 1);
       setErrorMsg(null);
     }
@@ -50,7 +52,11 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const currentBaseRate = typeof baseRate === 'number' ? baseRate : Math.round((typeof rate === 'number' ? rate : 0) / marginPct);
   const minAllowedRate = currentBaseRate * 0.90; // 10% lower than Base Rate
   const currentRateNum = typeof rate === 'number' ? rate : 0;
-  const isRateInvalid = isWholesale && currentRateNum < minAllowedRate;
+  const currentMrpNum = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
+
+  const isExceedingMrp = currentMrpNum > 0 && currentRateNum > currentMrpNum;
+  const isRateBelowMin = isWholesale && currentRateNum < minAllowedRate;
+  const isRateInvalid = isRateBelowMin || isExceedingMrp;
 
   const handleBaseRateChange = (val: string) => {
     if (val === '') {
@@ -62,7 +68,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setBaseRate(num);
       const autoRate = Math.round(num * marginPct);
       setRate(autoRate);
-      if (isWholesale && autoRate < num * 0.90) {
+      if (currentMrpNum > 0 && autoRate > currentMrpNum) {
+        setErrorMsg(`Selling Rate (₹${autoRate}) exceeds MRP (₹${currentMrpNum})`);
+      } else if (isWholesale && autoRate < num * 0.90) {
         setErrorMsg(`In Wholesale Mode, Rate cannot be set below ₹${(num * 0.90).toFixed(2)}`);
       } else {
         setErrorMsg(null);
@@ -79,7 +87,9 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     const num = parseFloat(val);
     if (!isNaN(num)) {
       setRate(num);
-      if (isWholesale && num < minAllowedRate) {
+      if (currentMrpNum > 0 && num > currentMrpNum) {
+        setErrorMsg(`MRP Limit: Selling Rate (₹${num}) cannot exceed MRP (₹${currentMrpNum})`);
+      } else if (isWholesale && num < minAllowedRate) {
         setErrorMsg(`Wholesale Guard: Rate cannot be less than 10% below Base Rate (Min ₹${minAllowedRate.toFixed(2)})`);
       } else {
         setErrorMsg(null);
@@ -91,13 +101,19 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    if (isRateInvalid) {
+    if (isExceedingMrp) {
+      setErrorMsg(`Cannot save: Rate (₹${currentRateNum}) exceeds MRP (₹${currentMrpNum})`);
+      return;
+    }
+
+    if (isRateBelowMin) {
       setErrorMsg(`Cannot save: Rate (₹${currentRateNum}) is below 10% of Base Rate (Min ₹${minAllowedRate.toFixed(2)})`);
       return;
     }
 
-    const finalRate = typeof rate === 'number' ? rate : Math.round(currentBaseRate * 1.10);
-    const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / 1.10);
+    const finalRate = typeof rate === 'number' ? rate : Math.round(currentBaseRate * marginPct);
+    const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / marginPct);
+    const finalMrp = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
 
     onSave({
       ...item,
@@ -107,6 +123,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       unit,
       baseRate: finalBaseRate,
       rate: finalRate,
+      mrp: finalMrp,
       qty: qty > 0 ? qty : 1
     });
 
@@ -206,8 +223,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
             </div>
           </div>
 
-          {/* Rates & Quantity Grid */}
-          <div className="grid grid-cols-3 gap-3 pt-1">
+          {/* Rates, MRP & Quantity Grid */}
+          <div className="grid grid-cols-2 gap-3 pt-1">
             <div>
               <label className="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1">
                 <span className="material-icons text-sm text-brand-700">sell</span>
@@ -223,6 +240,32 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
               />
             </div>
 
+            <div>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1">
+                <span className="material-icons text-sm text-amber-700">loyalty</span>
+                MRP (₹) [Hidden Calc]
+              </label>
+              <input
+                type="number"
+                step="any"
+                min="0"
+                placeholder="0 (Ignore if 0)"
+                value={mrp}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? '' : parseFloat(e.target.value);
+                  setMrp(val);
+                  if (typeof val === 'number' && val > 0 && currentRateNum > val) {
+                    setErrorMsg(`Selling Rate (₹${currentRateNum}) cannot exceed MRP (₹${val})`);
+                  } else {
+                    setErrorMsg(null);
+                  }
+                }}
+                className="w-full border border-slate-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500 font-bold text-slate-800 bg-amber-50/50 text-right transition"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1">
                 <span className="material-icons text-sm text-emerald-700">payments</span>

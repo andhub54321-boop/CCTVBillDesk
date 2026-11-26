@@ -19,20 +19,20 @@ import { ToastContainer, ToastMessage } from '../Toast/ToastContainer';
 import { InstallPrompt } from '../InstallPrompt/InstallPrompt';
 
 const DEFAULT_SEED_ITEMS: InvoiceItem[] = [
-  { id: 1, name: "DVR 8 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 2, unit: "NOS", rate: 4500, baseRate: 4091 },
-  { id: 2, name: "DVR 4 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 1, unit: "NOS", rate: 2450, baseRate: 2227 },
-  { id: 3, name: "CAMERA 2.4 BULLET COLOUR(ILLUMAX)", serial: "CAUAT80DM2DWH0CQ, ZTS2OGV764JZWTU3, 713BIXK7SG4TGQ2, 22JF0GZL5JVGG7H", hsn: "852580", qty: 4, unit: "PCS", rate: 1400, baseRate: 1273 },
-  { id: 4, name: "CAMERA 2.4 DOME COLOUR(ILLUMAX)", serial: "", hsn: "85258900", qty: 1, unit: "PCS", rate: 1400, baseRate: 1273 },
-  { id: 5, name: "POWER SUPPLY 10 AMPS PD08", serial: "B5LLPQHSUGU81OL", hsn: "850440", qty: 1, unit: "PCS", rate: 700, baseRate: 636 },
-  { id: 6, name: "HDD 500GB DAICHI", serial: "DGZE00C03268", hsn: "847170", qty: 1, unit: "NOS", rate: 2500, baseRate: 2273 },
-  { id: 7, name: "MONITOR", serial: "", hsn: "85285200", qty: 1, unit: "NOS", rate: 2570, baseRate: 2336 },
-  { id: 8, name: "CABLE 3+1 CC CPPLUS (90MTR)", serial: "", hsn: "854449", qty: 1, unit: "ROLL", rate: 1450, baseRate: 1318 },
-  { id: 9, name: "RACK 2U CP PLUS", serial: "", hsn: "84733099", qty: 1, unit: "NOS", rate: 650, baseRate: 591 },
-  { id: 10, name: "PVC BOX 4*4", serial: "", hsn: "39261011", qty: 4, unit: "NOS", rate: 55, baseRate: 50 },
-  { id: 11, name: "BNC JACK", serial: "", hsn: "85366990", qty: 8, unit: "NOS", rate: 25, baseRate: 23 },
-  { id: 12, name: "DC JACK", serial: "", hsn: "85366990", qty: 4, unit: "PCS", rate: 15, baseRate: 14 },
-  { id: 13, name: "DVM WALL MOUNT", serial: "", hsn: "73262090", qty: 1, unit: "NOS", rate: 250, baseRate: 227 },
-  { id: 14, name: "U CLIP(3917)A", serial: "", hsn: "3917", qty: 2, unit: "PKT", rate: 100, baseRate: 91 }
+  { id: 1, name: "DVR 8 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 2, unit: "NOS", rate: 4500, baseRate: 4091, mrp: 5800 },
+  { id: 2, name: "DVR 4 CH CPPLUS", serial: "DDELD1D3E8LWDPHU", hsn: "852190", qty: 1, unit: "NOS", rate: 2450, baseRate: 2227, mrp: 3200 },
+  { id: 3, name: "CAMERA 2.4 BULLET COLOUR(ILLUMAX)", serial: "CAUAT80DM2DWH0CQ, ZTS2OGV764JZWTU3, 713BIXK7SG4TGQ2, 22JF0GZL5JVGG7H", hsn: "852580", qty: 4, unit: "PCS", rate: 1400, baseRate: 1273, mrp: 1850 },
+  { id: 4, name: "CAMERA 2.4 DOME COLOUR(ILLUMAX)", serial: "", hsn: "85258900", qty: 1, unit: "PCS", rate: 1400, baseRate: 1273, mrp: 1850 },
+  { id: 5, name: "POWER SUPPLY 10 AMPS PD08", serial: "B5LLPQHSUGU81OL", hsn: "850440", qty: 1, unit: "PCS", rate: 700, baseRate: 636, mrp: 950 },
+  { id: 6, name: "HDD 500GB DAICHI", serial: "DGZE00C03268", hsn: "847170", qty: 1, unit: "NOS", rate: 2500, baseRate: 2273, mrp: 3200 },
+  { id: 7, name: "MONITOR", serial: "", hsn: "85285200", qty: 1, unit: "NOS", rate: 2570, baseRate: 2336, mrp: 3400 },
+  { id: 8, name: "CABLE 3+1 CC CPPLUS (90MTR)", serial: "", hsn: "854449", qty: 1, unit: "ROLL", rate: 1450, baseRate: 1318, mrp: 1900 },
+  { id: 9, name: "RACK 2U CP PLUS", serial: "", hsn: "84733099", qty: 1, unit: "NOS", rate: 650, baseRate: 591, mrp: 850 },
+  { id: 10, name: "PVC BOX 4*4", serial: "", hsn: "39261011", qty: 4, unit: "NOS", rate: 55, baseRate: 50, mrp: 75 },
+  { id: 11, name: "BNC JACK", serial: "", hsn: "85366990", qty: 8, unit: "NOS", rate: 25, baseRate: 23, mrp: 35 },
+  { id: 12, name: "DC JACK", serial: "", hsn: "85366990", qty: 4, unit: "PCS", rate: 15, baseRate: 14, mrp: 25 },
+  { id: 13, name: "DVM WALL MOUNT", serial: "", hsn: "73262090", qty: 1, unit: "NOS", rate: 250, baseRate: 227, mrp: 350 },
+  { id: 14, name: "U CLIP(3917)A", serial: "", hsn: "3917", qty: 2, unit: "PKT", rate: 100, baseRate: 91, mrp: 140 }
 ];
 
 const getFormattedCurrentDate = () => {
@@ -887,6 +887,7 @@ export const InvoiceDashboard: React.FC = () => {
                     <th className="w-20 py-1.5 px-1 text-center border-r border-slate-800">Qty</th>
                     <th className="w-11 py-1.5 px-1 text-center border-r border-slate-800">Unit</th>
                     <th className="w-20 py-1.5 px-1 text-right border-r border-slate-800 no-print text-brand-900">Base Rate (₹)</th>
+                    <th className="w-20 py-1.5 px-1 text-right border-r border-slate-800 no-print text-amber-900">MRP (₹)</th>
                     <th className="w-24 py-1.5 px-1 text-right border-r border-slate-800">Rate (₹)</th>
                     <th className="w-24 py-1.5 px-1 text-right border-r border-slate-800">Amount (₹)</th>
                     <th className="col-actions w-16 py-1.5 px-1 text-center no-print">Actions</th>
@@ -945,9 +946,16 @@ export const InvoiceDashboard: React.FC = () => {
                         <td
                           className="w-20 py-1.5 px-1 text-right font-mono text-slate-600 border-r border-slate-800 no-print cursor-pointer hover:bg-amber-50/60 transition-colors"
                           onClick={() => handleStartEditRow(item)}
-                          title="Click to edit Base Rate (Rate auto-calculates +10%)"
+                          title="Click to edit Base Rate"
                         >
                           {formatINR(item.baseRate ?? Math.round(item.rate / 1.10))}
+                        </td>
+                        <td
+                          className="w-20 py-1.5 px-1 text-right font-mono text-amber-900 border-r border-slate-800 no-print cursor-pointer hover:bg-amber-50/60 transition-colors"
+                          onClick={() => handleStartEditRow(item)}
+                          title="Click to edit MRP (Hidden ceiling limit)"
+                        >
+                          {item.mrp && item.mrp > 0 ? formatINR(item.mrp) : '—'}
                         </td>
                         <td
                           className="w-24 py-1.5 px-1 text-right border-r border-slate-800 cursor-pointer hover:bg-amber-50/60 transition-colors"

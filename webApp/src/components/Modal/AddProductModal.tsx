@@ -20,7 +20,9 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
   const [unit, setUnit] = useState('NOS');
   const [baseRate, setBaseRate] = useState<number | ''>('');
   const [rate, setRate] = useState<number | ''>('');
+  const [mrp, setMrp] = useState<number | ''>('');
   const [qty, setQty] = useState<number>(1);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -37,7 +39,30 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     if (!isNaN(num)) {
       setBaseRate(num);
       if (rate === '' || rate === 0) {
-        setRate(Math.round(num * marginPct));
+        const calculatedRate = Math.round(num * marginPct);
+        setRate(calculatedRate);
+        if (typeof mrp === 'number' && mrp > 0 && calculatedRate > mrp) {
+          setErrorMsg(`Rate (₹${calculatedRate}) cannot exceed MRP (₹${mrp})`);
+        } else {
+          setErrorMsg(null);
+        }
+      }
+    }
+  };
+
+  const handleRateChange = (val: string) => {
+    if (val === '') {
+      setRate('');
+      setErrorMsg(null);
+      return;
+    }
+    const num = parseFloat(val);
+    if (!isNaN(num)) {
+      setRate(num);
+      if (typeof mrp === 'number' && mrp > 0 && num > mrp) {
+        setErrorMsg(`Selling Rate (₹${num}) cannot exceed MRP (₹${mrp})`);
+      } else {
+        setErrorMsg(null);
       }
     }
   };
@@ -48,6 +73,12 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
     const finalRate = typeof rate === 'number' ? rate : (typeof baseRate === 'number' ? Math.round(baseRate * marginPct) : 0);
     const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / marginPct);
+    const finalMrp = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
+
+    if (finalMrp > 0 && finalRate > finalMrp) {
+      setErrorMsg(`Selling Rate (₹${finalRate}) exceeds MRP (₹${finalMrp}). Changes blocked.`);
+      return;
+    }
 
     onAdd({
       name: name.trim(),
@@ -56,6 +87,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
       unit,
       rate: finalRate,
       baseRate: finalBaseRate,
+      mrp: finalMrp,
       qty: qty > 0 ? qty : 1
     });
 
@@ -65,7 +97,9 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     setUnit('NOS');
     setBaseRate('');
     setRate('');
+    setMrp('');
     setQty(1);
+    setErrorMsg(null);
     onClose();
   };
 
@@ -125,7 +159,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">Base Rate (₹)</label>
               <input
@@ -139,6 +173,29 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
               />
             </div>
             <div>
+              <label className="block font-semibold text-slate-700 mb-1">MRP (₹) (Hidden Calc)</label>
+              <input
+                type="number"
+                step="any"
+                min="0"
+                placeholder="0 (Optional)"
+                value={mrp}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? '' : parseFloat(e.target.value);
+                  setMrp(val);
+                  if (typeof val === 'number' && val > 0 && typeof rate === 'number' && rate > val) {
+                    setErrorMsg(`Rate (₹${rate}) exceeds MRP (₹${val})`);
+                  } else {
+                    setErrorMsg(null);
+                  }
+                }}
+                className="w-full border border-slate-300 rounded-xl px-2.5 py-2 outline-none focus:ring-2 focus:ring-brand-500 font-semibold bg-amber-50/50"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
               <label className="block font-semibold text-slate-700 mb-1">Rate ({pctLabel})</label>
               <input
                 type="number"
@@ -147,8 +204,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 min="0"
                 placeholder="1400"
                 value={rate}
-                onChange={(e) => setRate(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                className="w-full border border-slate-300 rounded-xl px-2.5 py-2 outline-none focus:ring-2 focus:ring-brand-500 font-semibold"
+                onChange={(e) => handleRateChange(e.target.value)}
+                className={`w-full border rounded-xl px-2.5 py-2 outline-none focus:ring-2 font-semibold ${
+                  errorMsg ? 'border-red-500 bg-red-50 text-red-700' : 'border-slate-300 focus:ring-brand-500'
+                }`}
               />
             </div>
             <div>
@@ -163,6 +222,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
               />
             </div>
           </div>
+
+          {errorMsg && (
+            <div className="p-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-1.5">
+              <span className="material-icons text-sm text-red-600">error</span>
+              <span>{errorMsg}</span>
+            </div>
+          )}
           <div className="flex justify-end gap-2.5 pt-3">
             <button
               type="button"

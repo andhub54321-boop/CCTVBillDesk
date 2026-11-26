@@ -14,6 +14,7 @@ export interface InvoiceItem {
   unit: string;
   rate: number;
   baseRate?: number;
+  mrp?: number;
 }
 
 export interface InvoiceTotals {
