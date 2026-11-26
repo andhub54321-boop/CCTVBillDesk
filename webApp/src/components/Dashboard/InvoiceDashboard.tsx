@@ -226,7 +226,7 @@ export const InvoiceDashboard: React.FC = () => {
         };
       })
     );
-    showToast('Switched to Retail Mode (Rates +30% of Base Rate)');
+    showToast('Switched to Retail Mode');
   };
 
   const handleSwitchToWholesale = () => {
@@ -243,7 +243,7 @@ export const InvoiceDashboard: React.FC = () => {
         };
       })
     );
-    showToast('Switched to Wholesale Mode (Rates +10% of Base Rate)');
+    showToast('Switched to Wholesale Mode');
   };
 
   // Logo & Signature Uploads
