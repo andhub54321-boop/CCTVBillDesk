@@ -50,12 +50,12 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   if (!isOpen || !item) return null;
 
   const currentBaseRate = typeof baseRate === 'number' ? baseRate : Math.round((typeof rate === 'number' ? rate : 0) / marginPct);
-  const minAllowedRate = currentBaseRate * 0.90; // 10% lower than Base Rate
+  const minWholesaleRate = currentBaseRate * 1.10; // Wholesale minimum rate = Base Rate + 10%
   const currentRateNum = typeof rate === 'number' ? rate : 0;
   const currentMrpNum = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
 
   const isExceedingMrp = currentMrpNum > 0 && currentRateNum > currentMrpNum;
-  const isRateBelowMin = isWholesale && currentRateNum < minAllowedRate;
+  const isRateBelowMin = isWholesale && currentRateNum < minWholesaleRate;
   const isRateInvalid = isRateBelowMin || isExceedingMrp;
 
   const handleBaseRateChange = (val: string) => {
@@ -70,8 +70,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setRate(autoRate);
       if (currentMrpNum > 0 && autoRate > currentMrpNum) {
         setErrorMsg(`Selling Rate (₹${autoRate}) exceeds MRP (₹${currentMrpNum})`);
-      } else if (isWholesale && autoRate < num * 0.90) {
-        setErrorMsg(`In Wholesale Mode, Rate cannot be set below ₹${(num * 0.90).toFixed(2)}`);
+      } else if (isWholesale && autoRate < num * 1.10) {
+        setErrorMsg(`In Wholesale Mode, Rate cannot be set below Base Rate + 10% (Min ₹${(num * 1.10).toFixed(2)})`);
       } else {
         setErrorMsg(null);
       }
@@ -89,8 +89,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setRate(num);
       if (currentMrpNum > 0 && num > currentMrpNum) {
         setErrorMsg(`MRP Limit: Selling Rate (₹${num}) cannot exceed MRP (₹${currentMrpNum})`);
-      } else if (isWholesale && num < minAllowedRate) {
-        setErrorMsg(`Wholesale Guard: Rate cannot be less than 10% below Base Rate (Min ₹${minAllowedRate.toFixed(2)})`);
+      } else if (isWholesale && num < minWholesaleRate) {
+        setErrorMsg(`Wholesale Guard: Rate (₹${num}) cannot be below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
       } else {
         setErrorMsg(null);
       }
@@ -107,7 +107,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     }
 
     if (isRateBelowMin) {
-      setErrorMsg(`Cannot save: Rate (₹${currentRateNum}) is below 10% of Base Rate (Min ₹${minAllowedRate.toFixed(2)})`);
+      setErrorMsg(`Cannot save: Rate (₹${currentRateNum}) is below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
       return;
     }
 
@@ -133,10 +133,10 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const totalAmount = currentRateNum * (qty > 0 ? qty : 1);
 
   return (
-    <div className="no-print fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-in">
-      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 overflow-hidden animate-scale-up">
+    <div className="no-print fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto animate-fade-in">
+      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 overflow-hidden animate-scale-up my-auto max-h-[90vh] flex flex-col">
         {/* Header with Material Gradient & Icon */}
-        <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-blue-800 p-5 text-white flex items-center justify-between shadow-md">
+        <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-blue-800 p-4 sm:p-5 text-white flex items-center justify-between shadow-md flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-inner">
               <span className="material-icons text-xl">edit_note</span>
@@ -155,8 +155,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
           </button>
         </div>
 
-        {/* Form Fields */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
+        {/* Form Fields - Vertically Scrollable */}
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto">
           {/* Item Description */}
           <div>
             <label className="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1">

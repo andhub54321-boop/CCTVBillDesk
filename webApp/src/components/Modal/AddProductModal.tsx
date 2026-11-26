@@ -59,8 +59,12 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     const num = parseFloat(val);
     if (!isNaN(num)) {
       setRate(num);
+      const bRate = typeof baseRate === 'number' ? baseRate : 0;
+      const minWholesale = bRate * 1.10;
       if (typeof mrp === 'number' && mrp > 0 && num > mrp) {
         setErrorMsg(`Selling Rate (₹${num}) cannot exceed MRP (₹${mrp})`);
+      } else if (isWholesale && bRate > 0 && num < minWholesale) {
+        setErrorMsg(`Wholesale Guard: Rate (₹${num}) cannot be below Base Rate + 10% (Min ₹${minWholesale.toFixed(2)})`);
       } else {
         setErrorMsg(null);
       }
@@ -74,9 +78,15 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     const finalRate = typeof rate === 'number' ? rate : (typeof baseRate === 'number' ? Math.round(baseRate * marginPct) : 0);
     const finalBaseRate = typeof baseRate === 'number' ? baseRate : Math.round(finalRate / marginPct);
     const finalMrp = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
+    const minWholesale = finalBaseRate * 1.10;
 
     if (finalMrp > 0 && finalRate > finalMrp) {
       setErrorMsg(`Selling Rate (₹${finalRate}) exceeds MRP (₹${finalMrp}). Changes blocked.`);
+      return;
+    }
+
+    if (isWholesale && finalBaseRate > 0 && finalRate < minWholesale) {
+      setErrorMsg(`Wholesale Guard: Rate (₹${finalRate}) cannot be below Base Rate + 10% (Min ₹${minWholesale.toFixed(2)})`);
       return;
     }
 
@@ -104,13 +114,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
   };
 
   return (
-    <div className="no-print fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-100 animate-scale-up">
-        <h3 className="text-base font-bold text-brand-800 flex items-center gap-2 mb-4">
+    <div className="no-print fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl p-5 sm:p-6 w-full max-w-md shadow-2xl border border-slate-100 animate-scale-up my-auto max-h-[90vh] flex flex-col overflow-hidden">
+        <h3 className="text-base font-bold text-brand-800 flex items-center gap-2 mb-3 flex-shrink-0">
           <span className="material-icons text-lg">add_box</span>
           Add Product Line Item
         </h3>
-        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs overflow-y-auto">
           <div>
             <label className="block font-semibold text-slate-700 mb-1">Product Description</label>
             <input
