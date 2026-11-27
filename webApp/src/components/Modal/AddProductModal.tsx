@@ -60,11 +60,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     if (!isNaN(num)) {
       setRate(num);
       const bRate = typeof baseRate === 'number' ? baseRate : 0;
-      const minWholesale = parseFloat((bRate * 1.10).toFixed(2));
+      const minAllowed = parseFloat((bRate * 1.10).toFixed(2));
       if (typeof mrp === 'number' && mrp > 0 && num > mrp) {
         setErrorMsg(`Selling Rate (₹${num.toFixed(2)}) cannot exceed MRP (₹${mrp.toFixed(2)})`);
-      } else if (isWholesale && bRate > 0 && num < (minWholesale - 0.001)) {
-        setErrorMsg(`Wholesale Guard: Rate (₹${num.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minWholesale.toFixed(2)})`);
+      } else if (bRate > 0 && num < (minAllowed - 0.001)) {
+        setErrorMsg(`Rate Guard: Rate (₹${num.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minAllowed.toFixed(2)})`);
       } else {
         setErrorMsg(null);
       }
@@ -78,15 +78,15 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     const finalRate = typeof rate === 'number' ? rate : (typeof baseRate === 'number' ? parseFloat((baseRate * marginPct).toFixed(2)) : 0);
     const finalBaseRate = typeof baseRate === 'number' ? baseRate : parseFloat((finalRate / marginPct).toFixed(2));
     const finalMrp = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
-    const minWholesale = parseFloat((finalBaseRate * 1.10).toFixed(2));
+    const minAllowed = parseFloat((finalBaseRate * 1.10).toFixed(2));
 
     if (finalMrp > 0 && finalRate > finalMrp) {
       setErrorMsg(`Selling Rate (₹${finalRate.toFixed(2)}) exceeds MRP (₹${finalMrp.toFixed(2)}). Changes blocked.`);
       return;
     }
 
-    if (isWholesale && finalBaseRate > 0 && finalRate < (minWholesale - 0.001)) {
-      setErrorMsg(`Wholesale Guard: Rate (₹${finalRate.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minWholesale.toFixed(2)})`);
+    if (finalBaseRate > 0 && finalRate < (minAllowed - 0.001)) {
+      setErrorMsg(`Rate Guard: Rate (₹${finalRate.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minAllowed.toFixed(2)}). Changes blocked.`);
       return;
     }
 

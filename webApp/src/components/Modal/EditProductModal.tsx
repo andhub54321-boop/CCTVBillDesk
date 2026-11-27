@@ -50,12 +50,12 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   if (!isOpen || !item) return null;
 
   const currentBaseRate = typeof baseRate === 'number' ? baseRate : parseFloat(((typeof rate === 'number' ? rate : 0) / marginPct).toFixed(2));
-  const minWholesaleRate = parseFloat((currentBaseRate * 1.10).toFixed(2)); // Wholesale minimum rate = Base Rate + 10%
+  const minAllowedRate = parseFloat((currentBaseRate * 1.10).toFixed(2)); // Minimum allowed rate = Base Rate + 10%
   const currentRateNum = typeof rate === 'number' ? rate : 0;
   const currentMrpNum = typeof mrp === 'number' && mrp > 0 ? mrp : 0;
 
   const isExceedingMrp = currentMrpNum > 0 && currentRateNum > currentMrpNum;
-  const isRateBelowMin = isWholesale && currentRateNum < (minWholesaleRate - 0.001);
+  const isRateBelowMin = currentBaseRate > 0 && currentRateNum < (minAllowedRate - 0.001);
   const isRateInvalid = isRateBelowMin || isExceedingMrp;
 
   const handleBaseRateChange = (val: string) => {
@@ -71,8 +71,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       const minVal = parseFloat((num * 1.10).toFixed(2));
       if (currentMrpNum > 0 && autoRate > currentMrpNum) {
         setErrorMsg(`Selling Rate (₹${autoRate.toFixed(2)}) exceeds MRP (₹${currentMrpNum.toFixed(2)})`);
-      } else if (isWholesale && autoRate < (minVal - 0.001)) {
-        setErrorMsg(`In Wholesale Mode, Rate cannot be set below Base Rate + 10% (Min ₹${minVal.toFixed(2)})`);
+      } else if (autoRate < (minVal - 0.001)) {
+        setErrorMsg(`Rate cannot be set below Base Rate + 10% (Minimum ₹${minVal.toFixed(2)})`);
       } else {
         setErrorMsg(null);
       }
@@ -90,8 +90,8 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       setRate(num);
       if (currentMrpNum > 0 && num > currentMrpNum) {
         setErrorMsg(`MRP Limit: Selling Rate (₹${num.toFixed(2)}) cannot exceed MRP (₹${currentMrpNum.toFixed(2)})`);
-      } else if (isWholesale && num < (minWholesaleRate - 0.001)) {
-        setErrorMsg(`Wholesale Guard: Rate (₹${num.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
+      } else if (currentBaseRate > 0 && num < (minAllowedRate - 0.001)) {
+        setErrorMsg(`Rate Guard: Selling Rate (₹${num.toFixed(2)}) cannot be below Base Rate + 10% (Min ₹${minAllowedRate.toFixed(2)}). Normal Retail Rate is +30%.`);
       } else {
         setErrorMsg(null);
       }
@@ -108,7 +108,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
     }
 
     if (isRateBelowMin) {
-      setErrorMsg(`Cannot save: Rate (₹${currentRateNum.toFixed(2)}) is below Base Rate + 10% (Min ₹${minWholesaleRate.toFixed(2)})`);
+      setErrorMsg(`Cannot save: Rate (₹${currentRateNum.toFixed(2)}) is below Base Rate + 10% (Min ₹${minAllowedRate.toFixed(2)})`);
       return;
     }
 
